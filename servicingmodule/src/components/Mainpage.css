@@ -1,0 +1,4 @@
+.group-grid{
+    display: grid;
+    grid-template-columns: 1fr 5fr 5fr 1.8fr;
+}
