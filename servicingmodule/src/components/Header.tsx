@@ -1,4 +1,5 @@
-// import { BrowserRouter, Link, Route, Routes } from "react-router-dom";
+<>
+  {/* // import { BrowserRouter, Link, Route, Routes } from "react-router-dom";
 // import { useState } from "react";
 // import Mainpage from "./Mainpage";
 // import Dashboard from "./Dashboard";
@@ -92,8 +93,9 @@
 //   );
 // };
 
-// export default Header;
-
+// export default Header; */}
+</>;
+import "./header.css";
 import { useState } from "react";
 import { BrowserRouter, Link, Route, Routes } from "react-router-dom";
 import Mainpage from "./Mainpage";
@@ -115,7 +117,7 @@ const Header = () => {
   return (
     <>
       <BrowserRouter>
-        <nav className="navbar navbar-expand-sm mb-3 border-bottom fixed-top">
+        <nav className="navbar navbar-expand-sm mb-3 border-bottom pt-3 fixed-top navbar-fixed-top-glass-layer">
           <div className="container">
             <div className="d-flex flex-wrap align-items-center justify-content-center justify-content-sm-start">
               <a
@@ -172,6 +174,7 @@ const Header = () => {
             </ul>
           </div>
         </nav>
+
         <Routes>
           <Route path="/" element={<Mainpage />} />
           <Route path="/Dashboard" element={<Dashboard />} />

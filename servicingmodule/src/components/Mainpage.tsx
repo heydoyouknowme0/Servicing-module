@@ -53,7 +53,7 @@ const Mainpage = () => {
   };
 
   return (
-    <div className="container">
+    <div className="container cont-main">
       <form className="row needs-validation" noValidate>
         <div className="row justify-content-end mb-3">
           <div className="col-sm-auto">
@@ -90,19 +90,19 @@ const Mainpage = () => {
           </div>
         </div>
 
-        <div className="row"></div>
-        <div className="row justify-content-between">
-          <div className="col-sm-4">
+        <div className="row justify-content-between mb-3 ">
+          <div className="col-sm-4 form-floating  gx-1 ms-2">
             <input
               type="text"
               className="form-control form-control-lg"
               placeholder="First name"
               aria-label="First name"
             />
+            <label htmlFor="First name">First name</label>
           </div>
-          <div className="col-sm-4">
+          <div className="col-sm-4 ">
             <select
-              className="form-select form-select-lg mb-3"
+              className="form-select form-select-lg h-100"
               aria-label=".form-select-lg example"
             >
               <option selected>Open this select menu</option>
@@ -137,9 +137,8 @@ const Mainpage = () => {
             />
           </span>
         </div> */}
-
-        {inputs.map((input, index) => (
-          <div className="row">
+        <div className="row" id="con1">
+          {inputs.map((input, index) => (
             <div className="input-group group-grid" key={input.id}>
               <span className="input-group-text index">{input.id}</span>
               <span>
@@ -174,9 +173,8 @@ const Mainpage = () => {
                 />
               </span>
             </div>
-          </div>
-        ))}
-
+          ))}
+        </div>
         <div className="row mt-3 justify-content-around">
           <button
             className="btn btn-secondary col-2"
@@ -193,6 +191,9 @@ const Mainpage = () => {
   );
 };
 
+<>
+  //{" "}
+  {/*
 // export default Mainpage;
 // import { Form, Row, Col, InputGroup, Button } from "react-bootstrap";
 
@@ -279,5 +280,7 @@ const Mainpage = () => {
 //     </div>
 //   );
 // };
+// */}
+</>;
 
 export default Mainpage;
