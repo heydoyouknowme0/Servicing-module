@@ -96,14 +96,24 @@
 // export default Header; */}
 </>;
 import "./header.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { BrowserRouter, Link, Route, Routes } from "react-router-dom";
 import Mainpage from "./Mainpage";
 import Dashboard from "./Dashboard";
 
 const Header = () => {
   const [isMainpage, setIsMainpage] = useState(false);
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(
+    window.matchMedia("(prefers-color-scheme: dark)").matches
+  );
+
+  useEffect(() => {
+    if (isDarkMode) {
+      document.body.setAttribute("data-bs-theme", "dark");
+    } else {
+      document.body.removeAttribute("data-bs-theme");
+    }
+  }, []);
 
   const handleModeChange = () => {
     setIsDarkMode(!isDarkMode);
@@ -117,7 +127,10 @@ const Header = () => {
   return (
     <>
       <BrowserRouter>
-        <nav className="navbar navbar-expand-sm mb-3 border-bottom pt-3 fixed-top navbar-fixed-top-glass-layer">
+        <nav
+          className="navbar navbar-expand-sm mb-3 border-bottom pt-3  fixed-top"
+          id={isDarkMode ? "navdark" : "navlight"}
+        >
           <div className="container">
             <div className="d-flex flex-wrap align-items-center justify-content-center justify-content-sm-start">
               <a

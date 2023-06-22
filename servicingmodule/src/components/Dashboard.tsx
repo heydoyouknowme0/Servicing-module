@@ -1,6 +1,7 @@
 import fakeData from "./MOCK_DATA.json";
 import * as React from "react";
 import { useTable, useSortBy } from "react-table";
+import { format } from "date-fns";
 
 interface DataType {
   id: number;
@@ -11,6 +12,8 @@ interface DataType {
 }
 
 function App() {
+  const [selectedRow, setSelectedRow] = React.useState<DataType | null>(null);
+
   const data = React.useMemo<DataType[]>(() => fakeData, []);
   const columns = React.useMemo(
     () => [
@@ -33,6 +36,8 @@ function App() {
       {
         Header: "Date",
         accessor: "date" as const,
+        Cell: ({ value }: { value: string }) =>
+          format(new Date(value), "dd-MM-yyyy"),
       },
     ],
     []
@@ -42,7 +47,10 @@ function App() {
     useTable({ columns, data }, useSortBy);
 
   return (
-    <div className="container">
+    <div
+      className="container"
+      style={{ maxHeight: "calc(100vh - 80px)", overflowY: "auto" }}
+    >
       <table className="table table-hover" {...getTableProps()}>
         <thead>
           {headerGroups.map((headerGroup) => (
@@ -66,7 +74,10 @@ function App() {
           {rows.map((row) => {
             prepareRow(row);
             return (
-              <tr {...row.getRowProps()}>
+              <tr
+                {...row.getRowProps()}
+                onClick={() => setSelectedRow(row.original)}
+              >
                 {row.cells.map((cell) => (
                   <td {...cell.getCellProps()}>
                     {cell.render("Cell") as React.ReactNode}
@@ -77,6 +88,51 @@ function App() {
           })}
         </tbody>
       </table>
+      {selectedRow && (
+        <div
+          className="modal fade show"
+          id="exampleModal"
+          tabIndex={-1}
+          aria-labelledby="exampleModalLabel"
+          aria-hidden="true"
+          style={{ display: "block" }}
+        >
+          <div className="modal-dialog">
+            <div className="modal-content">
+              <div className="modal-header">
+                <h1 className="modal-title fs-5" id="exampleModalLabel">
+                  Row Details
+                </h1>
+                <button
+                  type="button"
+                  className="btn-close"
+                  onClick={() => setSelectedRow(null)}
+                ></button>
+              </div>
+              <div className="modal-body">
+                ID: {selectedRow.id}
+                <br />
+                Name: {selectedRow.name}
+                <br />
+                Email: {selectedRow.email}
+                <br />
+                Status: {selectedRow.status}
+                <br />
+                Date: {format(new Date(selectedRow.date), "dd-MM-yyyy")}
+              </div>
+              <div className="modal-footer">
+                <button
+                  type="button"
+                  className="btn btn-secondary"
+                  onClick={() => setSelectedRow(null)}
+                >
+                  Close
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -55,7 +55,7 @@ const Mainpage = () => {
   return (
     <div className="container cont-main">
       <form className="row needs-validation" noValidate>
-        <div className="row justify-content-end mb-3">
+        <div className="row justify-content-end mb-3 mt-3">
           <div className="col-sm-auto">
             <div className="input-group has-validation">
               <div className="input-group-text">
@@ -105,39 +105,15 @@ const Mainpage = () => {
               className="form-select form-select-lg h-100"
               aria-label=".form-select-lg example"
             >
-              <option selected>Open this select menu</option>
+              <option defaultValue={0}>Open this select menu</option>
               <option value="1">One</option>
               <option value="2">Two</option>
               <option value="3">Three</option>
             </select>
           </div>
         </div>
-        {/* <div className="input-group" id="group-grid">
-          <span className="input-group-text index">1</span>
-          <span>
-            <input
-              type="text"
-              aria-label="Item Name"
-              className="form-control"
-            />
-          </span>
-          <span>
-            <input
-              type="text"
-              aria-label="Item type"
-              className="form-control"
-            />
-          </span>
-          <span>
-            <input
-              type="number"
-              aria-label="quantity"
-              className="form-control"
-              min={1}
-            />
-          </span>
-        </div> */}
-        <div className="row" id="con1">
+
+        <div className="row mh-50" id="con1">
           {inputs.map((input, index) => (
             <div className="input-group group-grid" key={input.id}>
               <span className="input-group-text index">{input.id}</span>
@@ -146,7 +122,7 @@ const Mainpage = () => {
                   type="text"
                   name="name"
                   aria-label="Item Name"
-                  className="form-control"
+                  className="form-control form-control-lg"
                   value={input.name}
                   onChange={(e) => handleChange(index, e)}
                 />
@@ -156,7 +132,7 @@ const Mainpage = () => {
                   type="text"
                   name="type"
                   aria-label="Item type"
-                  className="form-control"
+                  className="form-control form-control-lg"
                   value={input.type}
                   onChange={(e) => handleChange(index, e)}
                 />
@@ -166,8 +142,9 @@ const Mainpage = () => {
                   type="number"
                   name="quantity"
                   aria-label="quantity"
-                  className="form-control"
+                  className="form-control form-control-lg"
                   min={1}
+                  defaultValue={1}
                   value={input.quantity}
                   onChange={(e) => handleChange(index, e)}
                 />
@@ -175,7 +152,7 @@ const Mainpage = () => {
             </div>
           ))}
         </div>
-        <div className="row mt-3 justify-content-around">
+        <div className="row mt-3 justify-content-around fixed-bottom mb-3 ">
           <button
             className="btn btn-secondary col-2"
             onClick={handleAddElement}

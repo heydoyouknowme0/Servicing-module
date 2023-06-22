@@ -8,4 +8,6 @@
     display: grid;
     grid-template-columns: 1fr 5fr 5fr 1.8fr;
 }
-#con1 { flex-grow: 1; }
+#con1 {
+    max-height: calc(100vh - 360px); /* Allow the container to grow and fill available space */
+    overflow-y: auto; }
