@@ -61,7 +61,6 @@ function App() {
                   {...column.getHeaderProps(column.getSortByToggleProps())}
                 >
                   {column.render("Header") as React.ReactNode}
-                  {console.log(column.isSortedDesc) as React.ReactNode}
                   <span>
                     {column.isSorted ? (column.isSortedDesc ? "∨" : "∧") : ""}
                   </span>
@@ -90,7 +89,7 @@ function App() {
       </table>
       {selectedRow && (
         <div
-          className="modal fade show"
+          className="modal model-backdrop show fade"
           id="exampleModal"
           tabIndex={-1}
           aria-labelledby="exampleModalLabel"
@@ -124,7 +123,10 @@ function App() {
                 <button
                   type="button"
                   className="btn btn-secondary"
-                  onClick={() => setSelectedRow(null)}
+                  onClick={() => {
+                    setSelectedRow(null);
+                    console.log(12);
+                  }}
                 >
                   Close
                 </button>

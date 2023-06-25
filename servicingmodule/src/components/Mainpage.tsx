@@ -8,26 +8,6 @@ interface InputElement {
 }
 
 const Mainpage = () => {
-  (() => {
-    "use strict";
-    const forms = document.querySelectorAll(".needs-validation");
-
-    // Loop over them and prevent submission
-    Array.from(forms).forEach((form) => {
-      form.addEventListener(
-        "submit",
-        (event) => {
-          if (!form.checkValidity()) {
-            event.preventDefault();
-            event.stopPropagation();
-          }
-
-          form.classList.add("was-validated");
-        },
-        false
-      );
-    });
-  })();
   // window.onbeforeunload = function(){
   //   // Check the state of the form
   //    if(form_changed){
@@ -54,10 +34,10 @@ const Mainpage = () => {
 
   return (
     <div className="container cont-main">
-      <form className="row needs-validation" noValidate>
+      <form className="row needs-validation">
         <div className="row justify-content-end mb-3 mt-3">
           <div className="col-sm-auto">
-            <div className="input-group has-validation">
+            <div className="input-group">
               <div className="input-group-text">
                 <label htmlFor="date" className="me-1">
                   <strong>Date</strong>
@@ -65,8 +45,9 @@ const Mainpage = () => {
               </div>
               <input
                 type="date"
-                className="form-control form-control-lg is-invalid"
+                className="form-control form-control-lg"
                 id="date"
+                required
               />
             </div>
             <div className="invalid-feedback">Please choose a username.</div>
@@ -85,25 +66,30 @@ const Mainpage = () => {
                 type="text"
                 className="form-control form-control-lg"
                 id="company-name"
+                required
               />
             </div>
           </div>
         </div>
 
         <div className="row justify-content-between mb-3 ">
-          <div className="col-sm-4 form-floating  gx-1 ms-2">
+          <div className="col-sm-4 form-floating">
             <input
               type="text"
-              className="form-control form-control-lg"
+              className="form-control form-control-lg "
               placeholder="First name"
               aria-label="First name"
+              required
             />
-            <label htmlFor="First name">First name</label>
+            <label className="ms-2" htmlFor="First name">
+              First name
+            </label>
           </div>
           <div className="col-sm-4 ">
             <select
               className="form-select form-select-lg h-100"
               aria-label=".form-select-lg example"
+              required
             >
               <option defaultValue={0}>Open this select menu</option>
               <option value="1">One</option>
@@ -125,6 +111,7 @@ const Mainpage = () => {
                   className="form-control form-control-lg"
                   value={input.name}
                   onChange={(e) => handleChange(index, e)}
+                  required
                 />
               </span>
               <span>
@@ -144,7 +131,6 @@ const Mainpage = () => {
                   aria-label="quantity"
                   className="form-control form-control-lg"
                   min={1}
-                  defaultValue={1}
                   value={input.quantity}
                   onChange={(e) => handleChange(index, e)}
                 />
