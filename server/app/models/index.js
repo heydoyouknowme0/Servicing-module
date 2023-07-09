@@ -10,6 +10,7 @@ const sequelize = new Sequelize(
     dialect: config.dialect,
     operatorsAliases: false,
 
+
     pool: {
       max: config.pool.max,
       min: config.pool.min,
@@ -24,27 +25,36 @@ const db = {};
 db.Sequelize = Sequelize;
 db.sequelize = sequelize;
 
-db.user = require("../models/user.model.js")(sequelize, Sequelize);
-db.role = require("../models/role.model.js")(sequelize, Sequelize);
-db.user_data = require("../models/user_data.model.js")(sequelize, Sequelize);
-db.user_items = require("../models/user_items.model.js")(sequelize, Sequelize);
+db.User = require("../models/user.model.js")(sequelize, Sequelize);
+db.Role = require("../models/role.model.js")(sequelize, Sequelize);
+db.UserData = require("../models/user_data.model.js")(sequelize, Sequelize);
+db.UserDataExt = require("../models/user_data_ext.model.js")(sequelize, Sequelize);
+db.UserItems = require("../models/user_items.model.js")(sequelize, Sequelize);
+db.SubItems = require("../models/subItems.model.js")(sequelize, Sequelize);
+db.Items = require("../models/items.model.js")(sequelize, Sequelize);
 
-db.role.belongsToMany(db.user, {
+db.Role.belongsToMany(db.User, {
   through: "user_roles",
   foreignKey: "roleId",
   otherKey: "userId"
 });
-db.user.belongsToMany(db.role, {
+db.User.belongsToMany(db.Role, {
   through: "user_roles",
   foreignKey: "userId",
   otherKey: "roleId"
 });
 
-db.user.hasMany(db.user_data);
-db.user_data.belongsTo(db.user);
+db.User.hasMany(db.UserData);
+db.UserData.belongsTo(db.User);
 
-db.user_data.hasMany(db.user_items);
-db.user_items.belongsTo(db.user_data);
+db.UserData.hasMany(db.UserItems);
+db.UserItems.belongsTo(db.UserData);
+
+db.UserData.hasOne(db.UserDataExt,{foreignKey:{primaryKey:true,allowNull: false}});
+db.UserDataExt.belongsTo(db.UserData);
+
+db.Items.hasMany(db.SubItems);
+db.SubItems.belongsTo(db.Items);
 
 db.ROLES = ["user", "admin"];
 

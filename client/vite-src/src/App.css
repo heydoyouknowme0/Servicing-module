@@ -1,10 +1,5 @@
-label {
-  display: block;
-  margin-top: 10px;
-}
-
 .card-container.card {
-  max-width: 350px !important;
+  max-width: 380px !important;
   padding: 40px 40px;
 }
 
@@ -22,11 +17,16 @@ label {
 }
 
 .profile-img-card {
-  width: 96px;
-  height: 96px;
+  width: 150px;
+  height: 150px;
   margin: 0 auto 10px;
   display: block;
   -moz-border-radius: 50%;
   -webkit-border-radius: 50%;
   border-radius: 50%;
+}
+input::-webkit-outer-spin-button,
+input::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
 }

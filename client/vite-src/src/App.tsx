@@ -11,10 +11,12 @@ import Login from "./components/Login";
 import Register from "./components/Register";
 import Home from "./components/Home";
 import Profile from "./components/Profile";
-import UserBoardWrapper from "./components/UserBoardWrapper";
+import UserBoardWrapper from "./components/UserBoard/UserBoardWrapper";
 import AdminBoard from "./components/AdminBoard";
 
 import EventBus from "./common/EventBus";
+import SimpleBar from "simplebar-react";
+import "simplebar-react/dist/simplebar.min.css";
 
 interface State {
   showAdminBoard: boolean;
@@ -88,90 +90,114 @@ const App: React.FC = () => {
   };
 
   return (
-    <div>
-      <nav className="navbar navbar-expand-sm mb-3 border-bottom pt-3  fixed-top">
-        <Link to={"/"} className="navbar-brand">
+    <div className="pt-sm-5 vh-100 d-flex flex-column">
+      {/* <button
+        className="btn btn-bd-primary py-2 dropdown-toggle d-flex align-items-center"
+        id="bd-theme"
+        type="button"
+        aria-expanded="false"
+        data-bs-toggle="dropdown"
+        aria-label="Toggle theme (auto)"
+      >
+        <svg className="bi my-1 theme-icon-active" width="1em" height="1em">
+          <use href="#circle-half"></use>
+        </svg>
+        <span className="visually-hidden" id="bd-theme-text">
+          Toggle theme
+        </span>
+      </button> */}
+      <nav
+        className="navbar sticky-top  mx-sm-5 px-xl-4 mb-sm-5 py-xl-3 navbar-expand-sm bg-body-tertiary rounded"
+        aria-label="Thirteenth navbar example"
+      >
+        <Link to={"/"} className="navbar-brand col-sm-auto ms-2 pe-0 me-0">
           SerMod
         </Link>
-        <div className="navbar-nav mr-auto">
-          {navigationItems.map(
-            (item) =>
-              item.condition && (
-                <li className="nav-item" key={item.to}>
-                  <Link to={item.to} className="nav-link">
-                    {item.label}
-                  </Link>
-                </li>
-              )
-          )}
-        </div>
+        <button
+          className="navbar-toggler"
+          type="button"
+          data-bs-toggle="collapse"
+          data-bs-target="#navbarsExample11"
+          aria-controls="navbarsExample11"
+          aria-expanded="false"
+          aria-label="Toggle navigation"
+          style={{ marginRight: "78px" }}
+        >
+          <span className="navbar-toggler-icon"></span>
+        </button>
 
-        {currentUser ? (
-          <div className="navbar-nav ml-auto">
-            <li className="nav-item">
-              <Link to={"/profile"} className="nav-link">
-                {currentUser.username}
-              </Link>
-            </li>
-            <li className="nav-item">
-              <Link to="/home" className="nav-link" onClick={logOut}>
-                Logout
-              </Link>
-            </li>
-          </div>
-        ) : (
-          <div className="navbar-nav ml-auto">
-            <li className="nav-item">
-              <Link to={"/login"} className="nav-link">
-                Login
-              </Link>
-            </li>
+        <div className="container-fluid ">
+          <div
+            className="collapse navbar-collapse d-sm-flex"
+            id="navbarsExample11"
+          >
+            <ul className="navbar-nav col-sm-auto ">
+              {navigationItems.map(
+                (item) =>
+                  item.condition && (
+                    <li className="nav-item" key={item.to}>
+                      <Link to={item.to} className="nav-link">
+                        {item.label}
+                      </Link>
+                    </li>
+                  )
+              )}
+              {currentUser ? (
+                <>
+                  <li className="nav-item">
+                    <Link to={"/profile"} className="nav-link">
+                      {currentUser.username}
+                    </Link>
+                  </li>
+                  <li className="nav-item">
+                    <Link to="/home" className="nav-link" onClick={logOut}>
+                      Logout
+                    </Link>
+                  </li>
+                </>
+              ) : (
+                <>
+                  <li className="nav-item">
+                    <Link to={"/login"} className="nav-link">
+                      Login
+                    </Link>
+                  </li>
 
-            <li className="nav-item">
-              <Link to={"/register"} className="nav-link">
-                Sign Up
-              </Link>
-            </li>
-          </div>
-        )}
-        <ul className="navbar-nav ml-auto">
-          <li className="nav-item dropdown">
-            <button
-              className="nav-link dropdown-toggle btn btn-link"
-              id="darkModeDropdown"
-              data-bs-toggle="dropdown"
-              aria-expanded="false"
-            >
-              Mode
-            </button>
-            <ul
-              className="dropdown-menu dropdown-menu-end"
-              aria-labelledby="darkModeDropdown"
-            >
-              <li>
-                <button className="dropdown-item" onClick={handleModeChange}>
-                  {isDarkMode ? "Light Mode" : "Dark Mode"}
-                </button>
-              </li>
+                  <li className="nav-item">
+                    <Link to={"/register"} className="nav-link">
+                      Sign Up
+                    </Link>
+                  </li>
+                </>
+              )}
             </ul>
-          </li>
-        </ul>
+          </div>
+        </div>
+        <button
+          className="btn position-absolute top-0 end-0 mt-2 me-xl-4 mt-xl-3 me-2"
+          style={{ backgroundColor: "#6528e0", color: "white" }}
+          onClick={handleModeChange}
+        >
+          {isDarkMode ? "Dark" : "Light"}
+        </button>
       </nav>
-
-      <div className="container mt-3">
-        <Routes>
-          <Route path="*" element={<Home />} />
-          <Route path="/home" element={<Home />} />
+      <Routes>
+        <Route path="*" element={<Home />} />
+        <Route path="/home" element={<Home />} />
+        <Route
+          path="/login"
+          element={<Login onLoginConfirmed={handleLoginSuccess} />}
+        />
+        <Route path="/register" element={<Register />} />
+        {currentUser && <Route path="/profile" element={<Profile />} />}
+        {currentUser && (
           <Route
-            path="/login"
-            element={<Login onLoginConfirmed={handleLoginSuccess} />}
+            path="/user"
+            element={<UserBoardWrapper showAdminBoard={showAdminBoard} />}
           />
-          <Route path="/register" element={<Register />} />
-          {currentUser && <Route path="/profile" element={<Profile />} />}
-          {currentUser && <Route path="/user" element={<UserBoardWrapper />} />}
-          {showAdminBoard && <Route path="/admin" element={<AdminBoard />} />}
-        </Routes>
-      </div>
+        )}
+        {showAdminBoard && <Route path="/admin" element={<AdminBoard />} />}
+      </Routes>
     </div>
   );
 };

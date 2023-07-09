@@ -7,17 +7,27 @@ module.exports = (sequelize, Sequelize) => {
         autoIncrement: true,
         primaryKey: true,
       },
-      name: {
+      nameId: {
+        type: Sequelize.INTEGER,
+      },
+      companyName: {
+        type: Sequelize.STRING,
+      },
+      myEmail: {
         type: Sequelize.STRING,
       },
       email: {
         type: Sequelize.STRING,
       },
       status: {
-        type: Sequelize.STRING,
+        type: Sequelize.INTEGER,
+        defaultValue: 1,
       },
       date: {
         type: Sequelize.DATE,
+      },
+      userName: {
+        type: Sequelize.STRING,
       },
     }
   );

@@ -5,11 +5,11 @@
   "documentRoot": "/vite-src/dist/",
   "url": "/",
   "enableServer": true,
-  "enableNativeAPI": true,
+  "enableNativeAPI": false,
   "nativeAllowList": ["app.*", "filesystem.readDirectory"],
   "modes": {
     "window": {
-      "title": "neutralinojs-vite-ts",
+      "title": "serMod",
       "width": 800,
       "height": 500,
       "minWidth": 400,
@@ -18,7 +18,7 @@
     }
   },
   "cli": {
-    "binaryName": "neutralinojs-vite-ts",
+    "binaryName": "serMod",
     "resourcesPath": "/vite-src/dist/",
     "extensionsPath": "/extensions/",
     "binaryVersion": "4.12.0",

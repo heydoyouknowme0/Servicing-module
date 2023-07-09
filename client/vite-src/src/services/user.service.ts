@@ -1,5 +1,9 @@
 import axios from 'axios';
 import authHeader from './auth-header';
+interface ChangeStatus {
+  id: number;
+  status: number;
+}
 
 const API_URL = 'http://localhost:8080/api/test/';
 
@@ -8,18 +12,33 @@ class UserService {
     return axios.get(API_URL + 'all');
   }
 
-  getUserBoard() {
-    return axios.get(API_URL + 'user', { headers: authHeader() });
+  getUserBoard(val:boolean) {
+    if(val===true){
+      return axios.get(API_URL + 'userAdmin', { headers: authHeader() });
+    }
+    else{
+      return axios.get(API_URL + 'user', { headers: authHeader() });
+    }
   }
 
   getAdminBoard() {
     return axios.get(API_URL + 'admin', { headers: authHeader() });
   }
-  getItemsBoard(userDatumId: number) {
+  getItemsBoard(DatumId: number) {
     return axios.get(API_URL + 'items', {
-      params: { userDatumId },
+      params: { DatumId },
       headers: authHeader()
     });
+  }
+  insertFormData(formValues: { [key: string]: string }) {
+    return axios.post(API_URL + 'insertFormData', formValues, { headers: authHeader() });
+  }
+  changeStatus(newStatus:number,id:number) {
+    const data = {
+      id: id,
+      newStatus: newStatus
+    };
+    return axios.post(API_URL + 'changeStatus', data, { headers: authHeader() });
   }
 }
 

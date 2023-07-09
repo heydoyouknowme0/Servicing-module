@@ -82,7 +82,7 @@ const Register = () => {
         <img
           src="avatar_2x.png"
           alt="profile-img"
-          className="profile-img-card"
+          className="profile-img-card mb-4"
         />
 
         <Formik
@@ -93,9 +93,15 @@ const Register = () => {
           <Form>
             {!successful && (
               <>
-                <div className="form-group">
+                <div className="form-floating">
+                  <Field
+                    type="text"
+                    id="username"
+                    name="username"
+                    className="form-control"
+                    placeholder=" "
+                  />
                   <label htmlFor="username">Username</label>
-                  <Field name="username" type="text" className="form-control" />
                   <ErrorMessage
                     name="username"
                     component="div"
@@ -103,9 +109,15 @@ const Register = () => {
                   />
                 </div>
 
-                <div className="form-group">
+                <div className="form-floating">
+                  <Field
+                    type="email"
+                    id="email"
+                    name="email"
+                    className="form-control"
+                    placeholder=" "
+                  />
                   <label htmlFor="email">Email</label>
-                  <Field name="email" type="email" className="form-control" />
                   <ErrorMessage
                     name="email"
                     component="div"
@@ -113,13 +125,15 @@ const Register = () => {
                   />
                 </div>
 
-                <div className="form-group">
-                  <label htmlFor="password">Password</label>
+                <div className="form-floating mb-3">
                   <Field
-                    name="password"
                     type="password"
+                    id="password"
+                    name="password"
                     className="form-control"
+                    placeholder=" "
                   />
+                  <label htmlFor="password">Password</label>
                   <ErrorMessage
                     name="password"
                     component="div"
@@ -127,7 +141,7 @@ const Register = () => {
                   />
                 </div>
 
-                <div className="form-group">
+                <div className="form-group mb-3">
                   <div className="form-check">
                     <Field
                       type="checkbox"
@@ -141,8 +155,11 @@ const Register = () => {
                   </div>
                 </div>
 
-                <div className="form-group">
-                  <button type="submit" className="btn btn-primary btn-block">
+                <div className="form-group mb-3">
+                  <button
+                    type="submit"
+                    className="btn btn-primary w-100 mt-2 pt-2"
+                  >
                     Sign Up
                   </button>
                 </div>
@@ -150,7 +167,7 @@ const Register = () => {
             )}
 
             {message && (
-              <div className="form-group">
+              <div className="form-group mb-3">
                 <div
                   className={
                     successful ? "alert alert-success" : "alert alert-danger"

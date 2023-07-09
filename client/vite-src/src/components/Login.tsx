@@ -15,7 +15,6 @@ interface LoginProps {
 }
 
 const Login = ({ onLoginConfirmed }: LoginProps) => {
-  const [loading, setLoading] = useState(false);
   const [formLoading, setFormLoading] = useState(false);
   const [message, setMessage] = useState("");
 
@@ -63,7 +62,7 @@ const Login = ({ onLoginConfirmed }: LoginProps) => {
   };
 
   return (
-    <div className="col-md-12">
+    <>
       <div className="card card-container">
         <img
           src="avatar_2x.png"
@@ -77,9 +76,15 @@ const Login = ({ onLoginConfirmed }: LoginProps) => {
           onSubmit={handleLogin}
         >
           <Form>
-            <div className="form-group">
+            <div className="form-floating mt-3">
+              <Field
+                type="text"
+                id="username"
+                name="username"
+                className="form-control"
+                placeholder=" "
+              />
               <label htmlFor="username">Username</label>
-              <Field name="username" type="text" className="form-control" />
               <ErrorMessage
                 name="username"
                 component="div"
@@ -87,21 +92,26 @@ const Login = ({ onLoginConfirmed }: LoginProps) => {
               />
             </div>
 
-            <div className="form-group">
+            <div className="form-floating mb-3">
+              <Field
+                type="password"
+                id="password"
+                name="password"
+                className="form-control"
+                placeholder=" "
+              />
               <label htmlFor="password">Password</label>
-              <Field name="password" type="password" className="form-control" />
               <ErrorMessage
                 name="password"
                 component="div"
                 className="alert alert-danger"
               />
             </div>
-
             <div className="form-group">
               <button
                 type="submit"
-                className="btn btn-primary btn-block"
-                disabled={loading || formLoading}
+                className="btn btn-primary w-100 my-2 py-2"
+                disabled={formLoading}
               >
                 {formLoading && (
                   <span className="spinner-border spinner-border-sm"></span>
@@ -120,7 +130,7 @@ const Login = ({ onLoginConfirmed }: LoginProps) => {
           </Form>
         </Formik>
       </div>
-    </div>
+    </>
   );
 };
 

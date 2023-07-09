@@ -17,7 +17,7 @@ app.use(express.urlencoded({ extended: true }));
 
 // database
 const db = require("./app/models");
-const Role = db.role;
+const Role = db.Role;
 
 db.sequelize.sync();
 // force: true will drop the table if it already exists

@@ -7,9 +7,11 @@ export interface IUser {
 }
 export interface DataType {
   id: number;
-  name: string;
+  userName: string;
+  companyName: string;
+  myEmail:string;
   email: string;
-  status: string;
+  status: number;
   date: string;
 }
 export interface ItemType {
@@ -17,4 +19,14 @@ export interface ItemType {
   itemName:string;
   itemType:string;
   itemQuantity:number;
+}
+export interface ExtDataType {
+  phoneCode?:string;
+  phone:string;
+  pickupDate:string;
+  pickupLocation:string;
+}
+export interface ItemExtDataWrapper {
+  data: ItemType[];
+  ExtDataType?: ExtDataType;
 }

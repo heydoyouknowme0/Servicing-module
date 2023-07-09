@@ -1,21 +1,61 @@
 import "./AdminBoard.css";
-import { useState } from "react";
+import { useEffect, useState } from "react";
+import userService from "../services/user.service";
+
+interface Userd {
+  users: User[];
+  items: Item[];
+  subItems: SubItem[];
+}
+
+interface User {
+  id: number;
+  username: string;
+}
+
+interface Item {
+  itemId: number;
+  itemName: string;
+}
+
+interface SubItem {
+  typeId: number;
+  itemType: string;
+  itemItemId: number;
+}
 
 interface InputElement {
   id: number;
-  name: string;
-  type: string;
-  quantity: number;
+  nameToType: number;
 }
 
 const AdminBoard = () => {
+  const [customEnable, setCustomEnable] = useState(false);
+  const [UserD, setUserD] = useState<Userd>({
+    users: [],
+    items: [],
+    subItems: [],
+  });
+
+  useEffect(() => {
+    userService
+      .getAdminBoard()
+      .then((response) => {
+        setUserD(response.data);
+        console.log(UserD);
+      })
+      .catch((error) => {
+        console.error(error);
+      });
+  }, []);
+
   const [inputs, setInputs] = useState<InputElement[]>([
-    { id: 1, name: "", type: "", quantity: 0 },
+    { id: 1, nameToType: 0 },
   ]);
 
   const handleAddElement = () => {
     const newId = inputs.length + 1;
-    setInputs([...inputs, { id: newId, name: "", type: "", quantity: 0 }]);
+    setInputs([...inputs, { id: newId, nameToType: 0 }]);
   };
 
   const handleRemoveLastElement = () => {
@@ -26,150 +66,291 @@ const AdminBoard = () => {
     updatedInputs.pop();
     setInputs(updatedInputs);
   };
+  const handleChangeItem = (
+    inputId: number,
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    const value = event.target.value;
+    const intValue = parseInt(value);
+    const updatedInputs = [...inputs];
+    updatedInputs[inputId - 1] = {
+      ...updatedInputs[inputId - 1],
+      nameToType: intValue || 0,
+    };
 
+    setInputs(updatedInputs);
+    console.log(inputs[inputId - 1].nameToType);
+  };
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
-    // Collect form data
     const formData = new FormData(e.currentTarget);
     const formValues: { [key: string]: string } = {};
 
-    // Iterate over form data and convert it to a plain object
     for (const [key, value] of formData.entries()) {
       formValues[key] = value.toString();
     }
 
-    // Process the form values as needed
-    console.log(formValues);
-    // ... Perform further logic with the form data
+    formValues["quantity"] = inputs.length.toString();
 
-    setInputs([{ id: 1, name: "", type: "", quantity: 0 }]);
+    console.log(formValues);
+
+    userService
+      .insertFormData(formValues)
+      .then((response) => {
+        console.log(response);
+      })
+      .catch((error) => {
+        console.error("Error inserting form data:", error);
+      });
+
+    setInputs([{ id: 1, nameToType: 0 }]);
     e.currentTarget.reset();
+    setCustomEnable(false);
   };
 
   return (
-    <div className="container cont-main">
-      <form className="row needs-validation" onSubmit={handleSubmit}>
-        <div className="row justify-content-end mb-3 mt-3">
-          <div className="col-sm-auto">
-            <div className="input-group">
-              <div className="input-group-text">
-                <label htmlFor="date" className="me-1">
-                  <strong>Date</strong>
-                </label>
-              </div>
-              <input
-                type="date"
-                className="form-control form-control-lg"
-                id="date"
-                name="date"
-                required
-              />
-            </div>
-            <div className="invalid-feedback">Please choose a username.</div>
-          </div>
+    <form
+      onSubmit={handleSubmit}
+      className="container flex-fill d-flex flex-column overflow-auto"
+    >
+      <div className="row justify-content-between mt-3 pe-0 ">
+        <div className="col-md-4 form-floating">
+          <input
+            type="text"
+            className="form-control form-control-lg"
+            id="company-name"
+            name="companyName"
+            placeholder="Company name"
+            required
+          />
+          <label htmlFor="company-name" className="ms-2">
+            Company name
+          </label>
         </div>
 
-        <div className="row mb-3">
-          <div className="col-sm-auto">
-            <div className="input-group">
-              <div className="input-group-text">
-                <label htmlFor="company-name" className="me-1">
-                  <strong>Company name</strong>
-                </label>
-              </div>
-              <input
-                type="text"
-                className="form-control form-control-lg"
-                id="company-name"
-                name="companyName"
-                required
-              />
-            </div>
-          </div>
+        <div className="form-floating col-md-4">
+          <input
+            type="date"
+            className="form-control form-control-lg"
+            id="date"
+            name="date"
+            required
+          />
+          <label className="ms-2" htmlFor="date">
+            Date
+          </label>
+        </div>
+      </div>
+
+      <div className="row justify-content-between  pe-0">
+        <div className="col-md-4 form-floating">
+          <input
+            type="email"
+            className="form-control"
+            placeholder="Email"
+            aria-label="Email"
+            id="email"
+            name="email"
+            required
+          />
+          <label className="ms-2" htmlFor="email">
+            Email
+          </label>
         </div>
 
-        <div className="row justify-content-between mb-3 ">
-          <div className="col-sm-4 form-floating">
+        <div className="form-check col-auto">
+          <input
+            className="form-check-input"
+            type="checkbox"
+            name="customInput"
+            onClick={() => {
+              setCustomEnable(!customEnable);
+            }}
+            id="flexCheckDefault"
+          />
+          <label className="form-check-label" htmlFor="flexCheckDefault">
+            Custom user
+          </label>
+        </div>
+        {customEnable ? (
+          <div className="form-floating  col-md-4">
             <input
               type="text"
-              className="form-control form-control-lg "
-              placeholder="First name"
-              aria-label="First name"
-              id="first-name"
-              name="firstName"
-              required
+              className="form-control"
+              id="nameUser"
+              placeholder="name"
+              name="userName"
             />
-            <label className="ms-2" htmlFor="first-name">
-              First name
+            <label htmlFor="nameUser" className="ms-2">
+              Name
             </label>
           </div>
-          <div className="col-sm-4 ">
+        ) : (
+          <div className="form-floating col-md-4">
             <select
-              className="form-select form-select-lg h-100"
-              aria-label=".form-select-lg example"
-              id="select-option"
-              name="selectedOption"
+              className="form-select"
+              aria-label="Floating label select example"
+              id="nameId"
+              name="nameId"
               required
             >
-              <option defaultValue={0}>Open this select menu</option>
-              <option value="1">One</option>
-              <option value="2">Two</option>
-              <option value="3">Three</option>
+              <option value="">Open this select menu</option>
+              {UserD.users.map((user) => (
+                <option value={user.id} key={user.id}>
+                  {user.username}
+                </option>
+              ))}
+              <option value="">Other</option>
             </select>
+            <label htmlFor="nameId" className="ms-2">
+              select User
+            </label>
+          </div>
+        )}
+      </div>
+      <div className="col-md-4">
+        <div className="input-group">
+          <input
+            type="text"
+            className="form-control  form-control-lg ps-1 pe-1 pb-0"
+            placeholder="+960"
+            id="phoneCode"
+            name="phoneCode"
+            maxLength={4}
+            pattern="\+[\d]{1,3}"
+            style={{ maxWidth: "56px" }}
+            title="Start with a plus, then only numbers"
+          />
+
+          <div className=" form-floating ">
+            <input
+              type="tel"
+              className="form-control form-control-lg "
+              name="phone"
+              placeholder="phone"
+              pattern="[0-9]{7,}"
+              title="Must be atleast 7 Characters"
+              required
+            />
+            <label htmlFor="phone">
+              {/* className="ms-2"*/}
+              Phone
+            </label>
           </div>
         </div>
+      </div>
+      <div className="row justify-content-between mb-3 pe-0 ">
+        <div className="form-floating col-md-4">
+          <input
+            type="date"
+            className="form-control form-control-lg"
+            id="pickupDate"
+            name="pickupDate"
+            required
+          />
+          <label className="ms-2" htmlFor="date">
+            Pickup Date
+          </label>
+        </div>
 
-        <div className="row mh-50" id="con1">
-          {inputs.map((input) => (
-            <div className="input-group group-grid" key={input.id}>
-              <span className="input-group-text index">{input.id}</span>
-              <span>
-                <input
-                  type="text"
-                  name={`item_name_${input.id}`}
-                  aria-label="Item Name"
-                  className="form-control form-control-lg"
-                  required
-                />
-              </span>
-              <span>
-                <input
-                  type="text"
-                  name={`item_type_${input.id}`}
-                  aria-label="Item type"
-                  className="form-control form-control-lg"
-                />
-              </span>
-              <span>
-                <input
-                  type="number"
-                  name={`item_quantity_${input.id}`}
-                  aria-label="quantity"
-                  className="form-control form-control-lg"
-                  min={1}
-                />
-              </span>
+        <div className=" col-md-4 form-floating">
+          <label htmlFor="pickupLocation" className="form-label"></label>
+          <textarea
+            className="form-control"
+            id="pickupLocation"
+            name="pickupLocation"
+            placeholder="Location"
+          />
+          <label htmlFor="pickupLocation" className="ms-2">
+            Pickup Location
+          </label>
+        </div>
+      </div>
+      <div className="flex-grow-1 overflow-auto" style={{ minHeight: "108px" }}>
+        <div className="input-group  mb-1 " style={{ height: "50px" }}>
+          <div className="input-group-text col-1 col-lg-1">#</div>
+          <div className="input-group-text col">Item Name</div>
+          <div className="input-group-text col">Item Type</div>
+          <div className="input-group-text ps-2 pe-0 col-2 col-lg-1">Total</div>
+        </div>
+        {inputs.map((input) => (
+          <div className="input-group mb-1 grouph" key={input.id}>
+            <div className="input-group-text index col-1 col-lg-1">
+              {input.id}
             </div>
-          ))}
-        </div>
-        <div className="row mt-3 justify-content-around fixed-bottom mb-3 ">
-          <button className="btn btn-success col-2" onClick={handleAddElement}>
-            Add Element
-          </button>
-          <button
-            className="btn btn-danger col-2"
-            type="button"
-            onClick={() => handleRemoveLastElement()}
-          >
-            Remove
-          </button>
-          <button className="btn btn-primary col-2" type="submit">
-            Submit form
-          </button>
-        </div>
-      </form>
-    </div>
+
+            <select
+              className="form-select col"
+              aria-label="select example"
+              name={`itemName${input.id}`}
+              onChange={(e) => handleChangeItem(input.id, e)}
+              required
+            >
+              <option value="">Select Item Name</option>
+              {UserD.items.map((item) => (
+                <option
+                  value={item.itemId + "." + item.itemName}
+                  key={item.itemId}
+                >
+                  {item.itemName}
+                </option>
+              ))}
+            </select>
+
+            <select
+              className="form-select col"
+              aria-label="select example"
+              name={`itemType${input.id}`}
+              required
+            >
+              <option value="">Select Item Type</option>
+              {UserD.subItems.map(
+                (subItem) =>
+                  subItem.itemItemId === input.nameToType && (
+                    <option value={subItem.itemType} key={subItem.typeId}>
+                      {subItem.itemType}
+                    </option>
+                  )
+              )}
+            </select>
+            <div className="col-2 col-lg-1 grouph">
+              <input
+                type="number"
+                name={`itemQuantity${input.id}`}
+                aria-label="quantity"
+                className="form-control "
+                min={1}
+                required
+              />
+            </div>
+          </div>
+        ))}
+      </div>
+
+      <div className="container my-2 d-sm-flex justify-content-sm-around w-100">
+        <button
+          className="btn btn-success col-12 col-sm-4 col-xl-3"
+          type="button"
+          onClick={handleAddElement}
+        >
+          Add Element
+        </button>
+        <button
+          className="btn btn-danger col-12 col-sm-4 col-xl-3"
+          type="button"
+          onClick={handleRemoveLastElement}
+        >
+          Remove
+        </button>
+        <button
+          className="btn btn-primary col-12 col-sm-4 col-xl-3"
+          type="submit"
+        >
+          Submit form
+        </button>
+      </div>
+    </form>
   );
 };
 
