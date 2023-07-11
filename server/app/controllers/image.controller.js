@@ -95,7 +95,7 @@ exports.uploadImage = async (req, res) => {
     }
 
     const imageName = userData.image;
-    const imagePath = path.join(__dirname, '..\\..\\uploads', imageName);
+    const imagePath = path.join(__dirname, '../../uploads', imageName);
 
     // Set the appropriate headers for the image based on the file extension or content type
     const contentType = determineContentType(imageName);
