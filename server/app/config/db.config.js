@@ -4,7 +4,7 @@ module.exports = {
   PASSWORD: "DzLloFtst4xRYQyAQn7g",
   DB: "railway",
   dialect: "mysql",
-  post:7473,
+  port:7473,
   pool: {
     max: 5,
     min: 0,
