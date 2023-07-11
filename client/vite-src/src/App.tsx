@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { Routes, Route, Link } from "react-router-dom";
+import { Routes, Route, Link, useNavigate } from "react-router-dom";
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "./App.css";
@@ -13,10 +13,7 @@ import Home from "./components/Home";
 import Profile from "./components/Profile";
 import UserBoardWrapper from "./components/UserBoard/UserBoardWrapper";
 import AdminBoard from "./components/AdminBoard";
-
 import EventBus from "./common/EventBus";
-import SimpleBar from "simplebar-react";
-import "simplebar-react/dist/simplebar.min.css";
 
 interface State {
   showAdminBoard: boolean;
@@ -31,7 +28,6 @@ const App: React.FC = () => {
   const [isDarkMode, setIsDarkMode] = useState(
     window.matchMedia("(prefers-color-scheme: dark)").matches
   );
-
   useEffect(() => {
     if (isDarkMode) {
       document.body.setAttribute("data-bs-theme", "dark");
@@ -107,7 +103,7 @@ const App: React.FC = () => {
         </span>
       </button> */}
       <nav
-        className="navbar sticky-top  mx-sm-5 px-xl-4 mb-sm-5 py-xl-3 navbar-expand-sm bg-body-tertiary rounded"
+        className="navbar sticky-top  mx-sm-5 px-xl-4 mb-sm-5 py-xl-3 navbar-expand-sm bg-body-tertiary rounded d-print-none"
         aria-label="Thirteenth navbar example"
       >
         <Link to={"/"} className="navbar-brand col-sm-auto ms-2 pe-0 me-0">
@@ -183,6 +179,7 @@ const App: React.FC = () => {
       </nav>
       <Routes>
         <Route path="*" element={<Home />} />
+        <Route path="/" element={<Home />} />
         <Route path="/home" element={<Home />} />
         <Route
           path="/login"

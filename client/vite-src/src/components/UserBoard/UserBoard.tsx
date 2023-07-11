@@ -3,6 +3,7 @@ import { useTable, useSortBy, CellProps } from "react-table";
 import { format } from "date-fns";
 import { DataType } from "../../types/user.type";
 import UserBoardSubTable from "./UserBoardSubTable";
+import "./UserPrint.css";
 interface UserBoardProps {
   data: DataType[];
   showAdminBoard: boolean;
@@ -16,6 +17,10 @@ const UserBoard: React.FC<UserBoardProps> = ({
 }) => {
   const [selectedRow, setSelectedRow] = useState<DataType | null>(null);
 
+  const handleStatus = (newStatus: number, selRow: DataType) => {
+    onStatusChange(newStatus, selRow);
+    setSelectedRow({ ...selRow, status: newStatus });
+  };
   const handleRowClick = (rowData: DataType) => {
     setSelectedRow(() => rowData);
   };
@@ -50,15 +55,10 @@ const UserBoard: React.FC<UserBoardProps> = ({
       {
         Header: "Company Name",
         accessor: "companyName" as const,
-        show: false,
       },
       {
         Header: "Email",
         accessor: "email" as const,
-      },
-      {
-        Header: "Email",
-        accessor: "myEmail" as const,
       },
       {
         Header: "Status",
@@ -81,17 +81,15 @@ const UserBoard: React.FC<UserBoardProps> = ({
         columns,
         data,
         initialState: {
-          hiddenColumns: showAdminBoard
-            ? ["myEmail"]
-            : ["email", "companyName"],
+          hiddenColumns: !showAdminBoard ? ["companyName"] : [],
         },
       },
       useSortBy
     );
 
   return (
-    <div className=" container table-responsive">
-      <table className="table table-hover" {...getTableProps()}>
+    <div className=" container table-responsive ">
+      <table className="table table-hover d-print-none" {...getTableProps()}>
         <thead>
           {headerGroups.map((headerGroup) => (
             <tr {...headerGroup.getHeaderGroupProps()}>
@@ -106,6 +104,7 @@ const UserBoard: React.FC<UserBoardProps> = ({
                   </span>
                 </th>
               ))}
+              <th style={{ textAlign: "center" }}>#</th>
             </tr>
           ))}
         </thead>
@@ -125,33 +124,37 @@ const UserBoard: React.FC<UserBoardProps> = ({
                     {cell.render("Cell") as React.ReactNode}
                   </td>
                 ))}
+                <td style={{ textAlign: "center" }} key={row.original.id}>
+                  <button className="btn btn-outline-danger py-0 px-1">
+                    ❌
+                  </button>
+                </td>
               </tr>
             );
           })}
         </tbody>
       </table>
+
       {selectedRow && (
         <div
-          className="modal model-backdrop show fade"
+          className="modal model-backdrop show fade "
           id="exampleModal"
           tabIndex={-1}
           aria-labelledby="exampleModalLabel"
           aria-hidden="true"
           style={{ display: "block" }}
         >
-          <div className="modal-dialog">
+          <div className="modal-dialog modal-dialog-scrollable">
             <div className="modal-content">
               <div className="modal-header">
-                <h1 className="modal-title fs-5" id="exampleModalLabel">
-                  Request Details
-                </h1>
+                <h1 className="modal-title fs-3">Request Details</h1>
                 <button
                   type="button"
                   className="btn-close"
                   onClick={() => setSelectedRow(null)}
                 ></button>
               </div>
-              <div className="modal-body">
+              <div className="modal-body mb-3">
                 <strong>Name:</strong> {selectedRow?.userName}
                 <br />
                 {showAdminBoard ? (
@@ -161,22 +164,21 @@ const UserBoard: React.FC<UserBoardProps> = ({
                   </>
                 ) : null}
                 <strong>Email:</strong>
-                {showAdminBoard ? selectedRow?.email : selectedRow?.myEmail}
+                {selectedRow?.email}
                 <br />
                 <strong>Status:</strong> {getStatusString(selectedRow?.status)}
                 <br />
                 <strong>Date:</strong>{" "}
                 {format(new Date(selectedRow?.date), "dd-MM-yyyy")}
-                <UserBoardSubTable id={selectedRow?.id} />
+                <UserBoardSubTable id={selectedRow?.id} val={showAdminBoard} />
               </div>
-              <div className="modal-footer">
+              <div className="modal-footer d-print-none">
                 {showAdminBoard ? (
                   <button
                     type="button"
                     className="btn btn-danger"
                     onClick={() => {
-                      onStatusChange(-1, selectedRow);
-                      setSelectedRow({ ...selectedRow, status: -1 });
+                      handleStatus(-2, selectedRow);
                     }}
                   >
                     Cancel
@@ -196,8 +198,7 @@ const UserBoard: React.FC<UserBoardProps> = ({
                       <a
                         className="dropdown-item"
                         onClick={() => {
-                          onStatusChange(0, selectedRow);
-                          setSelectedRow({ ...selectedRow, status: 0 });
+                          handleStatus(0, selectedRow);
                         }}
                       >
                         Mark Done
@@ -207,8 +208,7 @@ const UserBoard: React.FC<UserBoardProps> = ({
                       <a
                         className="dropdown-item"
                         onClick={() => {
-                          onStatusChange(2, selectedRow);
-                          setSelectedRow({ ...selectedRow, status: 2 });
+                          handleStatus(2, selectedRow);
                         }}
                       >
                         Accept
@@ -218,8 +218,7 @@ const UserBoard: React.FC<UserBoardProps> = ({
                       <a
                         className="dropdown-item"
                         onClick={() => {
-                          onStatusChange(-1, selectedRow);
-                          setSelectedRow({ ...selectedRow, status: -1 });
+                          handleStatus(-1, selectedRow);
                         }}
                       >
                         Reject
@@ -227,7 +226,9 @@ const UserBoard: React.FC<UserBoardProps> = ({
                     </li>
                   </ul>
                 </div>
-
+                <button className="btn btn-warning" onClick={window.print}>
+                  Print
+                </button>
                 <button
                   type="button"
                   className="btn btn-secondary"

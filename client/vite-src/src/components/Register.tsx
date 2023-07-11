@@ -11,7 +11,10 @@ interface State {
 
 interface FormValues {
   username: string;
+  companyName: string;
   email: string;
+  phoneCode?: string;
+  phone: string;
   password: string;
   enableRequest: boolean;
 }
@@ -27,8 +30,16 @@ const Register = () => {
       .min(3, "The username must be at least 3 characters.")
       .max(20, "The username must be at most 20 characters.")
       .required("This field is required!"),
+    companyName: Yup.string()
+      .min(3, "The Company name must be at least 3 characters.")
+      .max(20, "The Company name must be at most 20 characters.")
+      .required("This field is required!"),
     email: Yup.string()
       .email("This is not a valid email.")
+      .required("This field is required!"),
+    phoneCode: Yup.string().matches(/^\+[0-9]{1,3}$/, "Invalid phone code"),
+    phone: Yup.string()
+      .matches(/^[0-9]{1,14}$/, "Invalid phone number")
       .required("This field is required!"),
     password: Yup.string()
       .min(6, "The password must be at least 6 characters.")
@@ -37,15 +48,26 @@ const Register = () => {
   });
 
   const handleRegister = async (formValues: FormValues) => {
-    const { username, email, password, enableRequest } = formValues;
+    const {
+      username,
+      companyName,
+      email,
+      phoneCode,
+      phone,
+      password,
+      enableRequest,
+    } = formValues;
 
     try {
       const roles = enableRequest ? true : false;
 
       const response = await AuthService.register(
         username,
+        companyName,
         email,
+        phone,
         password,
+        phoneCode,
         roles
       );
       setState({
@@ -71,7 +93,9 @@ const Register = () => {
 
   const initialValues: FormValues = {
     username: "",
+    companyName: "",
     email: "",
+    phone: "",
     password: "",
     enableRequest: false,
   };
@@ -108,6 +132,26 @@ const Register = () => {
                     className="alert alert-danger"
                   />
                 </div>
+                <div className="form-floating">
+                  <Field
+                    type="text"
+                    className="form-control form-control-lg"
+                    id="company-name"
+                    name="companyName"
+                    placeholder="Company name"
+                    list="CompanyList"
+                    required
+                  />
+                  <datalist id="CompanyList">
+                    <option value="company 1"></option>
+                  </datalist>
+                  <label htmlFor="company-name">Company name</label>
+                  <ErrorMessage
+                    name="companyName"
+                    component="div"
+                    className="alert alert-danger"
+                  />
+                </div>
 
                 <div className="form-floating">
                   <Field
@@ -125,6 +169,43 @@ const Register = () => {
                   />
                 </div>
 
+                <div className="input-group">
+                  <Field
+                    type="text"
+                    className="form-control ps-1 pe-1 pb-0"
+                    placeholder="+960"
+                    maxLength={4}
+                    id="phoneCode"
+                    name="phoneCode"
+                    style={{ maxWidth: "56px" }}
+                  />
+
+                  <div className=" form-floating">
+                    <Field
+                      type="tel"
+                      className="form-control form-control-lg "
+                      name="phone"
+                      placeholder="phone"
+                      pattern="[0-9]{7,}"
+                      title="Must be atleast 7 Characters"
+                      required
+                    />
+                    <label htmlFor="phone">
+                      {/* className="ms-2"*/}
+                      Phone
+                    </label>
+                  </div>
+                </div>
+                <ErrorMessage
+                  name="phoneCode"
+                  component="div"
+                  className="alert alert-danger"
+                />
+                <ErrorMessage
+                  name="phone"
+                  component="div"
+                  className="alert alert-danger"
+                />
                 <div className="form-floating mb-3">
                   <Field
                     type="password"

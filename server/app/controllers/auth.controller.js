@@ -12,8 +12,11 @@ exports.signup = (req, res) => {
   // Save User to Database
   User.create({
     username: req.body.username,
+    companyName: req.body.companyName,
     email: req.body.email,
-    password: bcrypt.hashSync(req.body.password, 8)
+    phone:req.body.phone,
+    password: bcrypt.hashSync(req.body.password, 8),
+    phoneCode: req.body.phoneCode
   })
   .then(user => {
     if (req.body.roles === true) {

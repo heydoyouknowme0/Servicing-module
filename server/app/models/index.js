@@ -28,7 +28,6 @@ db.sequelize = sequelize;
 db.User = require("../models/user.model.js")(sequelize, Sequelize);
 db.Role = require("../models/role.model.js")(sequelize, Sequelize);
 db.UserData = require("../models/user_data.model.js")(sequelize, Sequelize);
-db.UserDataExt = require("../models/user_data_ext.model.js")(sequelize, Sequelize);
 db.UserItems = require("../models/user_items.model.js")(sequelize, Sequelize);
 db.SubItems = require("../models/subItems.model.js")(sequelize, Sequelize);
 db.Items = require("../models/items.model.js")(sequelize, Sequelize);
@@ -44,14 +43,15 @@ db.User.belongsToMany(db.Role, {
   otherKey: "roleId"
 });
 
-db.User.hasMany(db.UserData);
-db.UserData.belongsTo(db.User);
+db.UserData.belongsTo(db.User, { foreignKey: 'nameId', as: 'nameUser' });
+db.User.hasMany(db.UserData, { foreignKey: 'nameId' });
+
+db.UserData.belongsTo(db.User, { foreignKey: 'userId' });
+db.User.hasMany(db.UserData, { foreignKey: 'userId' });
+
 
 db.UserData.hasMany(db.UserItems);
 db.UserItems.belongsTo(db.UserData);
-
-db.UserData.hasOne(db.UserDataExt,{foreignKey:{primaryKey:true,allowNull: false}});
-db.UserDataExt.belongsTo(db.UserData);
 
 db.Items.hasMany(db.SubItems);
 db.SubItems.belongsTo(db.Items);

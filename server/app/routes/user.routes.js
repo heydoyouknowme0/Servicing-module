@@ -1,5 +1,6 @@
 const { authJwt } = require("../middleware");
 const controller = require("../controllers/user.controller");
+const imgcontroller = require("../controllers/image.controller");
 
 module.exports = function (app) {
   app.use(function (req, res, next) {
@@ -27,16 +28,16 @@ module.exports = function (app) {
     [authJwt.verifyToken, authJwt.isAdmin],
     controller.adminBoard
   );
-  // app.get(
-  //   "/api/test/admin/subItems",
-  //   [authJwt.verifyToken, authJwt.isAdmin],
-  //   controller.adminSubItems 
-  // )
-
   app.get(
     "/api/test/items",
     [authJwt.verifyToken],
     controller.itemBoard
+  );
+  
+  app.get(
+    "/api/test/itemsAdmin",
+    [authJwt.verifyToken, authJwt.isAdmin],
+    controller.itemBoardAdmin
   );
 
   app.post(
@@ -50,4 +51,14 @@ module.exports = function (app) {
     [authJwt.verifyToken],
     controller.changeStatus
   );
+  app.post(
+    "/api/test/uploadImage",
+    [authJwt.verifyToken],
+    imgcontroller.uploadImage
+  );
+  app.get(
+    "/api/test/getImage",
+    [authJwt.verifyToken],
+    imgcontroller.getImage
+  )
 };

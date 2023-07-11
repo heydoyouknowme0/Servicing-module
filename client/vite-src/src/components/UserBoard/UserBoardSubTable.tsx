@@ -2,8 +2,13 @@ import { useEffect, useState } from "react";
 import userService from "../../services/user.service";
 import { format } from "date-fns";
 import { ItemExtDataWrapper } from "../../types/user.type";
+import "./UserPrint.css";
+import ImageUploader from "./ImageUploader";
 
-const UserBoardSubTable: React.FC<{ id: number }> = ({ id }) => {
+const UserBoardSubTable: React.FC<{ id: number; val: boolean }> = ({
+  id,
+  val,
+}) => {
   const [itemExtData, setItemExtData] = useState<ItemExtDataWrapper>({
     data: [],
     ExtDataType: {
@@ -14,25 +19,26 @@ const UserBoardSubTable: React.FC<{ id: number }> = ({ id }) => {
   });
 
   useEffect(() => {
-    const DatumId = id;
-    userService
-      .getItemsBoard(DatumId)
-      .then((response) => {
+    const loadItemExtData = async () => {
+      try {
+        const response = await userService.getItemsBoard(id, val);
         setItemExtData({
           data: response.data.userItems,
-          ExtDataType: response.data.userDataExt,
+          ExtDataType: response.data.userData,
         });
-      })
-      .catch((error) => {
+      } catch (error) {
         console.error(error);
-      });
-  }, []);
-  let index = 1;
+      }
+    };
+
+    loadItemExtData();
+  }, [id]);
 
   return (
     <div>
-      <strong>Phone: </strong> {itemExtData.ExtDataType?.phoneCode ?? "+960"}
-      &nbsp;{itemExtData.ExtDataType?.phone}
+      <strong>Phone: </strong> {itemExtData.ExtDataType?.phoneCode || "+960"}
+      &nbsp;
+      {itemExtData.ExtDataType?.phone}
       <br />
       <strong>Pickup Date: </strong>
       {itemExtData.ExtDataType?.pickupDate &&
@@ -40,8 +46,8 @@ const UserBoardSubTable: React.FC<{ id: number }> = ({ id }) => {
       <br />
       <strong>Pickup Location: </strong>
       {itemExtData.ExtDataType?.pickupLocation}
-      <h4 className="mt-3">Item Board</h4>
-      <table className="table">
+      <h3 className="mt-3">Item Board</h3>
+      <table className="table t1">
         <thead>
           <tr>
             <th scope="col">#</th>
@@ -51,9 +57,9 @@ const UserBoardSubTable: React.FC<{ id: number }> = ({ id }) => {
           </tr>
         </thead>
         <tbody>
-          {itemExtData.data.map((item) => (
+          {itemExtData.data.map((item, i) => (
             <tr key={item.itemName}>
-              <th scope="row">{index++}</th>
+              <th scope="row">{i + 1}</th>
               <td>{item.itemQuantity}</td>
               <td>{item.itemName}</td>
               <td>{item.itemType}</td>
@@ -61,6 +67,7 @@ const UserBoardSubTable: React.FC<{ id: number }> = ({ id }) => {
           ))}
         </tbody>
       </table>
+      <ImageUploader id={id} />
     </div>
   );
 };

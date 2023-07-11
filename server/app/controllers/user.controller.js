@@ -1,12 +1,12 @@
 
-const db = require("../models");
+const db= require("../models");
+const {sequelize}= require("../models");
 const UserData = db.UserData;
 const UserItems = db.UserItems;
 const UserRoles = db.Role;
 const User= db.User;
 const Items=db.Items;
 const SubItems=db.SubItems;
-const UserDataExt = db.UserDataExt;
 
 exports.allAccess = (req, res) => {
   res.status(200).send("Public Content.");
@@ -15,31 +15,26 @@ exports.allAccess = (req, res) => {
 exports.userBoard = (req, res) => {
   const nameId = req.userId; // Assuming you have the user ID available in the request
 
-
-  // Retrieve the associated data for the given user ID
-  UserData.findAll({ where: { nameId } })
+  UserData.findAll({
+    where: { nameId },
+    attributes: [
+      'id',
+      'status',
+      'date',
+      'userId',
+      [sequelize.literal('User.username'), 'userName'],
+      [sequelize.literal('User.companyName'), 'companyName'],
+      [sequelize.literal('User.email'), 'email']
+    ],
+    include: [
+      {
+        model: User,
+        attributes: []
+      }
+    ]
+  })
     .then((userData) => {
-      // Fetch the corresponding usernames for the nameIds
-      const nameIds = userData.map((data) => data.userId);
-      User.findAll({ where: { id: nameIds } })
-        .then((users) => {
-          // Map the usernames to the userData
-          
-          const userDataWithUsername = userData.map((data) => {
-            const user = users.find((user) => user.id === data.userId);
-            return {
-              ...data.toJSON(),
-              userName: user ? user.username : null,
-            };
-          });
-          res.send(userDataWithUsername);
-        })
-        .catch((err) => {
-          res.status(500).send({
-            message:
-              err.message || "Some error occurred while retrieving usernames.",
-          });
-        });
+      res.send(userData);
     })
     .catch((err) => {
       res.status(500).send({
@@ -49,61 +44,64 @@ exports.userBoard = (req, res) => {
     });
 };
 
+
+
+
 exports.userBoardAdmin = (req, res) => {
   const userId = req.userId; // Assuming you have the user ID available in the request
 
-  // Retrieve the associated data for the given user ID
-  UserData.findAll({ where: { userId } })
+  UserData.findAll({
+    where: { userId },
+    attributes: [
+      'id',
+      'nameId',
+      'status',
+      'date',
+      [sequelize.literal("COALESCE(nameUser.email, user_data.email)"), 'email'],
+      [sequelize.literal("COALESCE(nameUser.companyName, user_data.companyName)"), 'companyName'],
+      [sequelize.literal("COALESCE(nameUser.username, user_data.userName)"), 'userName'],
+    ],
+    include: [
+      {
+        model: User,
+        as: 'nameUser',
+        attributes: [],
+        required: false,
+      },
+    ],
+  })
     .then((userData) => {
-      // Fetch the corresponding usernames for the nameIds
-      const nameIds = userData.map((data) => data.nameId);
-      User.findAll({ where: { id: nameIds } })
-        .then((users) => {
-          // Map the usernames to the userData
-          const userDataWithUsername = userData.map((data) => {
-            const user = users.find((user) => user.id === data.nameId);
-           
-            if(data.nameId){
-              return {
-                
-                ...data.toJSON(),
-                userName: user ? user.username: null,
-              }
-              }
-              else{
-                return {
-                  ...data.toJSON(),
-                }
-              };
-          });
-          res.send(userDataWithUsername);
-        })
-        .catch((err) => {
-          res.status(500).send({
-            message:
-              err.message || "Some error occurred while retrieving usernames.",
-          });
-        });
+      res.send(userData);
     })
     .catch((err) => {
+    //  console.log(userData);
       res.status(500).send({
-        message:
-          err.message || "Some error occurred while retrieving user data.",
+        
+        message: err.message || "Some error occurred while retrieving user data.",
       });
     });
 };
 
 exports.itemBoard = (req, res) => {
   const userDatumId = req.query.DatumId;
+  const id= req.query.DatumId;
 
   const userItemsPromise = UserItems.findAll({ where: { userDatumId } });
-  const userDataExtPromise = UserDataExt.findOne({ where: { userDatumId } });
+  const userDataPromise = UserData.findOne({ where: { id }, attributes: ['pickupDate', 'pickupLocation',  [sequelize.literal('User.phoneCode'), 'phoneCode'],
+  [sequelize.literal('User.phone'), 'phone'],   ],
+  include: [
+    {
+      model: User,
+      attributes: [],
+    },
+  ], });
 
-  Promise.all([userItemsPromise, userDataExtPromise])
-    .then(([userItems, userDataExt]) => {
+
+  Promise.all([userItemsPromise, userDataPromise])
+    .then(([userItems, userData]) => {
       const response = {
         userItems,
-        userDataExt,
+        userData,
       };
       res.send(response);
     })
@@ -115,7 +113,36 @@ exports.itemBoard = (req, res) => {
 };
 
 
+exports.itemBoardAdmin = (req, res) => {
+  const userDatumId = req.query.DatumId;
+  const id= req.query.DatumId;
 
+  const userItemsPromise = UserItems.findAll({ where: { userDatumId } });
+  const userDataPromise = UserData.findOne({ where: { id }, attributes: ['pickupDate', 'pickupLocation',[sequelize.literal("COALESCE(nameUser.phoneCode, user_data.phoneCode)"), 'phoneCode'],
+  [sequelize.literal("COALESCE(nameUser.phone, user_data.phone)"), 'phone'],],
+  include: [
+    {
+      model: User,
+      as: 'nameUser',
+      attributes: [],
+      required:false,
+    },
+  ], });
+
+  Promise.all([userItemsPromise, userDataPromise])
+    .then(([userItems, userData]) => {
+      const response = {
+        userItems,
+        userData,
+      };
+      res.send(response);
+    })
+    .catch((err) => {
+      res.status(500).send({
+        message: "Some error occurred while retrieving items.",
+      });
+    });
+};
 
 
 exports.adminBoard = (req, res) => {
@@ -126,7 +153,7 @@ exports.adminBoard = (req, res) => {
         {
           model: UserRoles,
           where: { Id: 1 },
-          through: { attributes: [] }
+          attributes: []
         }
       ]
     }),
@@ -146,8 +173,8 @@ exports.adminBoard = (req, res) => {
 };
 
 exports.insertFormData = (req, res) => {
-  const { companyName, date, email, nameId,userName, quantity,phoneCode,phone,pickupDate,pickupLocation, ...items } = req.body;
-  const userId = req.userId; // Assuming req.userId contains the user ID
+  const { companyName, date, email, nameId, userName, quantity, phoneCode, phone, pickupDate, pickupLocation, ...items } = req.body;
+  const userId = req.userId;
 
   return User.findByPk(userId)
     .then((user) => {
@@ -156,45 +183,37 @@ exports.insertFormData = (req, res) => {
       }
 
       const userIdd = user.id;
-      const myEmail =user.email;
 
       return UserData.create({
         companyName: companyName,
         date: date,
         email: email,
         nameId: nameId,
-        myEmail: myEmail,
         userName: userName,
         userId: userIdd,
+        phoneCode: phoneCode,
+        phone: phone,
+        pickupLocation: pickupLocation,
+        pickupDate: pickupDate,
       }).then((userData) => {
-        return UserDataExt.create({
-          phoneCode: phoneCode || null, 
-          phone: phone,
-          pickupLocation: pickupLocation,
-          pickupDate: pickupDate,
-          userDatumId: userData.id,
-        }).then(() => {
-          const itemPromises = [];
+        const itemPromises = [];
 
+        for (let i = 1; i <= quantity; i++) {
+          const itemNames = items[`itemName${i}`].substring(items[`itemName${i}`].indexOf(".") + 1);
+          const itemQuantitys = items[`itemQuantity${i}`];
+          const itemTypes = items[`itemType${i}`];
 
-          for (let i = 1; i <= quantity; i++) {
-            const itemNames = items[`itemName${i}`].substring(items[`itemName${i}`].indexOf(".") + 1);
-            const itemQuantitys = items[`itemQuantity${i}`];
-            const itemTypes = items[`itemType${i}`];
+          const itemPromise = UserItems.create({
+            itemName: itemNames,
+            itemQuantity: itemQuantitys,
+            itemType: itemTypes,
+            userDatumId: userData.id,
+          });
 
-            const itemPromise = UserItems.create({
-              itemName: itemNames,
-              itemQuantity: itemQuantitys,
-              itemType: itemTypes,
-              userDatumId: userData.id, 
-            });
+          itemPromises.push(itemPromise);
+        }
 
-            itemPromises.push(itemPromise);
-          }
-
-
-          return Promise.all(itemPromises);
-        });
+        return Promise.all(itemPromises);
       });
     })
     .then(() => {
@@ -204,6 +223,7 @@ exports.insertFormData = (req, res) => {
       res.status(500).json({ error: "Error inserting form data" });
     });
 };
+
 
 // exports.adminSubItems = (req,res) {
 //  

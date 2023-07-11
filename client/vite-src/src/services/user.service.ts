@@ -5,6 +5,7 @@ interface ChangeStatus {
   status: number;
 }
 
+
 const API_URL = 'http://localhost:8080/api/test/';
 
 class UserService {
@@ -24,14 +25,25 @@ class UserService {
   getAdminBoard() {
     return axios.get(API_URL + 'admin', { headers: authHeader() });
   }
-  getItemsBoard(DatumId: number) {
-    return axios.get(API_URL + 'items', {
-      params: { DatumId },
-      headers: authHeader()
-    });
+  getItemsBoard(DatumId: number,val:boolean) {
+    if(val=== true){
+      return axios.get(API_URL + 'itemsAdmin', {
+        params: { DatumId },
+        headers: authHeader()
+      });
+    }
+    else{
+      return axios.get(API_URL + 'items', {
+        params: { DatumId },
+        headers: authHeader()
+      });
+    }
   }
   insertFormData(formValues: { [key: string]: string }) {
     return axios.post(API_URL + 'insertFormData', formValues, { headers: authHeader() });
+  }
+  uploadImage(imageData: FormData){
+    return axios.post(API_URL + 'uploadImage', imageData, { headers: authHeader() });
   }
   changeStatus(newStatus:number,id:number) {
     const data = {
@@ -39,6 +51,13 @@ class UserService {
       newStatus: newStatus
     };
     return axios.post(API_URL + 'changeStatus', data, { headers: authHeader() });
+  }
+  getImage(id: number) {
+      return axios.get(API_URL + 'getImage', {
+        params: { id},
+        headers: authHeader(),
+        responseType: 'arraybuffer',
+      });
   }
 }
 

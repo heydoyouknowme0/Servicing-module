@@ -9,7 +9,6 @@ export interface DataType {
   id: number;
   userName: string;
   companyName: string;
-  myEmail:string;
   email: string;
   status: number;
   date: string;
@@ -21,10 +20,10 @@ export interface ItemType {
   itemQuantity:number;
 }
 export interface ExtDataType {
-  phoneCode?:string;
-  phone:string;
   pickupDate:string;
   pickupLocation:string;
+  phone:string;
+  phoneCode?:string;
 }
 export interface ItemExtDataWrapper {
   data: ItemType[];

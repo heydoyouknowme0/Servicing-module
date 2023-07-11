@@ -26,7 +26,6 @@ const UserBoardWrapper: React.FC<UserBoardWrapperProps> = ({
   useEffect(() => {
     UserService.getUserBoard(showAdminBoard)
       .then((response) => {
-        console.log(response.data);
         setUserData(response.data);
       })
       .catch((error) => {

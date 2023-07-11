@@ -1,0 +1,14 @@
+@media print {
+    .modal{
+        height: fit-content !important;
+        overflow: auto !important;
+        position: relative !important;
+    }
+    .container{overflow: visible;}
+
+    .t1{
+        break-after: page;
+    }
+
+}
+

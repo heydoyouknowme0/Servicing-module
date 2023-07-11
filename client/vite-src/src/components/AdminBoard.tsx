@@ -42,7 +42,6 @@ const AdminBoard = () => {
       .getAdminBoard()
       .then((response) => {
         setUserD(response.data);
-        console.log(UserD);
       })
       .catch((error) => {
         console.error(error);
@@ -79,7 +78,6 @@ const AdminBoard = () => {
     };
 
     setInputs(updatedInputs);
-    console.log(inputs[inputId - 1].nameToType);
   };
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -92,8 +90,6 @@ const AdminBoard = () => {
     }
 
     formValues["quantity"] = inputs.length.toString();
-
-    console.log(formValues);
 
     userService
       .insertFormData(formValues)
@@ -114,22 +110,23 @@ const AdminBoard = () => {
       onSubmit={handleSubmit}
       className="container flex-fill d-flex flex-column overflow-auto"
     >
-      <div className="row justify-content-between mt-3 pe-0 ">
-        <div className="col-md-4 form-floating">
+      <div className="row justify-content-between mt-3 mt-md-0 mb-md-2 pe-0 ">
+        <div className="col-md-5 col-lg-4 form-floating">
           <input
             type="text"
             className="form-control form-control-lg"
             id="company-name"
             name="companyName"
             placeholder="Company name"
-            required
+            required={customEnable}
+            disabled={!customEnable}
           />
           <label htmlFor="company-name" className="ms-2">
             Company name
           </label>
         </div>
 
-        <div className="form-floating col-md-4">
+        <div className="form-floating col-md-5 col-lg-4">
           <input
             type="date"
             className="form-control form-control-lg"
@@ -143,8 +140,8 @@ const AdminBoard = () => {
         </div>
       </div>
 
-      <div className="row justify-content-between  pe-0">
-        <div className="col-md-4 form-floating">
+      <div className="row justify-content-between  pe-0 mb-md-2">
+        <div className="col-md-5 col-lg-4 form-floating">
           <input
             type="email"
             className="form-control"
@@ -152,112 +149,107 @@ const AdminBoard = () => {
             aria-label="Email"
             id="email"
             name="email"
-            required
+            required={customEnable}
+            disabled={!customEnable}
           />
           <label className="ms-2" htmlFor="email">
             Email
           </label>
         </div>
-
-        <div className="form-check col-auto">
-          <input
-            className="form-check-input"
-            type="checkbox"
-            name="customInput"
-            onClick={() => {
-              setCustomEnable(!customEnable);
-            }}
-            id="flexCheckDefault"
-          />
-          <label className="form-check-label" htmlFor="flexCheckDefault">
-            Custom user
-          </label>
+        <div className="col-md-5 col-lg-4">
+          <div className="input-group ">
+            <button
+              className="btn btn-outline-secondary"
+              type="button"
+              id="button-addon1"
+              onClick={() => {
+                setCustomEnable(!customEnable);
+              }}
+            >
+              {customEnable ? "Custom" : "Stock"}
+            </button>
+            {customEnable ? (
+              <div className="form-floating">
+                <input
+                  type="text"
+                  className="form-control"
+                  id="nameUser"
+                  placeholder="name"
+                  name="userName"
+                />
+                <label htmlFor="nameUser" className="ms-2">
+                  Name
+                </label>
+              </div>
+            ) : (
+              <div className="form-floating col-md-5 col-lg-4">
+                <select
+                  className="form-select"
+                  aria-label="Floating label select example"
+                  id="nameId"
+                  name="nameId"
+                  required
+                >
+                  <option value="">Open this select menu</option>
+                  {UserD.users.map((user) => (
+                    <option value={user.id} key={user.id}>
+                      {user.username}
+                    </option>
+                  ))}
+                </select>
+                <label htmlFor="nameId" className="ms-2">
+                  select User
+                </label>
+              </div>
+            )}
+          </div>
         </div>
-        {customEnable ? (
-          <div className="form-floating  col-md-4">
+      </div>
+      <div className="row justify-content-between  pe-0 mb-md-2">
+        <div className="col-md-5 col-lg-4">
+          <div className="input-group">
             <input
               type="text"
-              className="form-control"
-              id="nameUser"
-              placeholder="name"
-              name="userName"
+              className="form-control  form-control-lg ps-1 pe-1 pb-0 mb-md-2"
+              placeholder="+960"
+              id="phoneCode"
+              name="phoneCode"
+              maxLength={4}
+              pattern="\+[\d]{1,3}"
+              style={{ maxWidth: "56px" }}
+              title="Start with a plus, then only numbers"
+              disabled={!customEnable}
             />
-            <label htmlFor="nameUser" className="ms-2">
-              Name
-            </label>
-          </div>
-        ) : (
-          <div className="form-floating col-md-4">
-            <select
-              className="form-select"
-              aria-label="Floating label select example"
-              id="nameId"
-              name="nameId"
-              required
-            >
-              <option value="">Open this select menu</option>
-              {UserD.users.map((user) => (
-                <option value={user.id} key={user.id}>
-                  {user.username}
-                </option>
-              ))}
-              <option value="">Other</option>
-            </select>
-            <label htmlFor="nameId" className="ms-2">
-              select User
-            </label>
-          </div>
-        )}
-      </div>
-      <div className="col-md-4">
-        <div className="input-group">
-          <input
-            type="text"
-            className="form-control  form-control-lg ps-1 pe-1 pb-0"
-            placeholder="+960"
-            id="phoneCode"
-            name="phoneCode"
-            maxLength={4}
-            pattern="\+[\d]{1,3}"
-            style={{ maxWidth: "56px" }}
-            title="Start with a plus, then only numbers"
-          />
 
-          <div className=" form-floating ">
+            <div className=" form-floating  mb-md-2">
+              <input
+                type="tel"
+                className="form-control form-control-lg "
+                name="phone"
+                placeholder="phone"
+                pattern="[0-9]{7,}"
+                title="Must be atleast 7 Characters"
+                required={customEnable}
+                disabled={!customEnable}
+              />
+              <label htmlFor="phone">Phone</label>
+            </div>
+          </div>
+          <div className="form-floating">
             <input
-              type="tel"
-              className="form-control form-control-lg "
-              name="phone"
-              placeholder="phone"
-              pattern="[0-9]{7,}"
-              title="Must be atleast 7 Characters"
+              type="date"
+              className="form-control form-control-lg"
+              id="pickupDate"
+              name="pickupDate"
               required
             />
-            <label htmlFor="phone">
-              {/* className="ms-2"*/}
-              Phone
-            </label>
+            <label htmlFor="pickupDate">Pickup Date</label>
           </div>
         </div>
-      </div>
-      <div className="row justify-content-between mb-3 pe-0 ">
-        <div className="form-floating col-md-4">
-          <input
-            type="date"
-            className="form-control form-control-lg"
-            id="pickupDate"
-            name="pickupDate"
-            required
-          />
-          <label className="ms-2" htmlFor="date">
-            Pickup Date
-          </label>
-        </div>
-
-        <div className=" col-md-4 form-floating">
+        <div className=" col-md-5 col-lg-4 form-floating">
           <label htmlFor="pickupLocation" className="form-label"></label>
           <textarea
-            className="form-control"
+            className="form-control h-100"
             id="pickupLocation"
             name="pickupLocation"
             placeholder="Location"
@@ -267,6 +259,7 @@ const AdminBoard = () => {
           </label>
         </div>
       </div>
+      <div className="row justify-content-between mb-3 pe-0 "></div>
       <div className="flex-grow-1 overflow-auto" style={{ minHeight: "108px" }}>
         <div className="input-group  mb-1 " style={{ height: "50px" }}>
           <div className="input-group-text col-1 col-lg-1">#</div>
@@ -337,7 +330,7 @@ const AdminBoard = () => {
           Add Element
         </button>
         <button
-          className="btn btn-danger col-12 col-sm-4 col-xl-3"
+          className="btn btn-danger col-12 col-sm-4 col-xl-3 mx-sm-2 "
           type="button"
           onClick={handleRemoveLastElement}
         >

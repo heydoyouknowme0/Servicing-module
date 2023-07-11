@@ -7,13 +7,7 @@ module.exports = (sequelize, Sequelize) => {
         autoIncrement: true,
         primaryKey: true,
       },
-      nameId: {
-        type: Sequelize.INTEGER,
-      },
       companyName: {
-        type: Sequelize.STRING,
-      },
-      myEmail: {
         type: Sequelize.STRING,
       },
       email: {
@@ -29,6 +23,21 @@ module.exports = (sequelize, Sequelize) => {
       userName: {
         type: Sequelize.STRING,
       },
+      phone: {
+        type: Sequelize.STRING,
+      },
+      phoneCode: {
+        type: Sequelize.STRING,
+      },
+      pickupLocation:{
+        type: Sequelize.STRING,
+      },
+      pickupDate: {
+        type: Sequelize.DATE,
+      },
+      image: {
+        type: Sequelize.STRING,
+      }
     }
   );
 
