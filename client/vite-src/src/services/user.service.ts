@@ -6,8 +6,8 @@ interface ChangeStatus {
 }
 
 
-// const API_URL = 'https://servicing-module-production.up.railway.app/api/test/';
-  const API_URL = "http://localhost:8080/api/test/";
+   const API_URL = 'https://servicing-module-production.up.railway.app/api/test/';
+//  const API_URL = "http://localhost:8080/api/test/";
 
 class UserService {
   getPublicContent() {
