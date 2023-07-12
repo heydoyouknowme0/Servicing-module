@@ -46,6 +46,12 @@ module.exports = function (app) {
     controller.insertFormData
   );
 
+  app.get(
+    "/api/test/deleteData",
+    [authJwt.verifyToken],
+    controller.deleteData,
+  );
+
   app.post(
     "/api/test/changeStatus",
     [authJwt.verifyToken],

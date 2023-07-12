@@ -225,6 +225,45 @@ exports.insertFormData = (req, res) => {
 };
 
 
+
+exports.deleteData = async (req, res) => {
+  try {
+    const { id } = req.query;
+
+    const transaction = await sequelize.transaction();
+
+    try {
+      // Delete UserItems associated with the UserData entry
+      await UserItems.destroy({
+        where: { userDatumId: id },
+        transaction
+      });
+
+      // Delete the UserData entry
+      const affectedRows = await UserData.destroy({
+        where: { id },
+        transaction
+      });
+
+      await transaction.commit();
+
+      if (affectedRows === 0) {
+        return res.status(404).json({ error: 'User data not found.' });
+      }
+
+      return res.json({ message: 'UserData and associated UserItems deleted successfully.' });
+    } catch (error) {
+      await transaction.rollback();
+      throw error;
+    }
+  } catch (error) {
+    console.error('Error deleting UserData and associated UserItems:', error);
+    res.status(500).json({ error: 'An error occurred while deleting the data.' });
+  }
+};
+
+
+
 // exports.adminSubItems = (req,res) {
 //  
 //}

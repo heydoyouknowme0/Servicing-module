@@ -4,6 +4,8 @@ import { format } from "date-fns";
 import { DataType } from "../../types/user.type";
 import UserBoardSubTable from "./UserBoardSubTable";
 import "./UserPrint.css";
+import userService from "../../services/user.service";
+
 interface UserBoardProps {
   data: DataType[];
   showAdminBoard: boolean;
@@ -11,19 +13,43 @@ interface UserBoardProps {
 }
 
 const UserBoard: React.FC<UserBoardProps> = ({
-  data,
+  data: initialData,
   showAdminBoard,
   onStatusChange,
 }) => {
+  const [data, setData] = useState<DataType[]>(initialData);
   const [selectedRow, setSelectedRow] = useState<DataType | null>(null);
 
-  const handleStatus = (newStatus: number, selRow: DataType) => {
-    onStatusChange(newStatus, selRow);
-    setSelectedRow({ ...selRow, status: newStatus });
-  };
-  const handleRowClick = (rowData: DataType) => {
-    setSelectedRow(() => rowData);
-  };
+  useEffect(() => {
+    setData(initialData);
+  }, [initialData]);
+
+  const handleStatus = useCallback(
+    (newStatus: number, selRow: DataType) => {
+      onStatusChange(newStatus, selRow);
+      setSelectedRow({ ...selRow, status: newStatus });
+    },
+    [onStatusChange]
+  );
+
+  const handleRowClick = useCallback((rowData: DataType) => {
+    setSelectedRow(rowData);
+  }, []);
+
+  const handleDelete = useCallback(
+    (id: number, event: React.MouseEvent<HTMLButtonElement>) => {
+      event.stopPropagation();
+      userService
+        .deleteData(id)
+        .then(() => {
+          setData((prevData) => prevData.filter((row) => row.id !== id));
+        })
+        .catch((error) => {
+          console.error("Error deleting row:", error);
+        });
+    },
+    []
+  );
 
   const getStatusString = useCallback((status: number) => {
     switch (status) {
@@ -72,7 +98,7 @@ const UserBoard: React.FC<UserBoardProps> = ({
           format(new Date(value), "dd-MM-yyyy"),
       },
     ],
-    []
+    [getStatusString]
   );
 
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
@@ -92,11 +118,12 @@ const UserBoard: React.FC<UserBoardProps> = ({
       <table className="table table-hover d-print-none" {...getTableProps()}>
         <thead>
           {headerGroups.map((headerGroup) => (
-            <tr {...headerGroup.getHeaderGroupProps()}>
+            <tr {...headerGroup.getHeaderGroupProps()} key={headerGroup.id}>
               {headerGroup.headers.map((column) => (
                 <th
                   className="col"
                   {...column.getHeaderProps(column.getSortByToggleProps())}
+                  key={column.id}
                 >
                   {column.render("Header") as React.ReactNode}
                   <span className="ms-1">
@@ -114,18 +141,22 @@ const UserBoard: React.FC<UserBoardProps> = ({
             return (
               <tr
                 {...row.getRowProps()}
-                onClick={() => {
-                  handleRowClick(row.original);
-                }}
-                key={row.original.id}
+                onClick={() => handleRowClick(row.original)}
+                className={
+                  selectedRow?.id === row.original.id ? "selected" : ""
+                }
+                key={row.id}
               >
                 {row.cells.map((cell) => (
-                  <td {...cell.getCellProps()}>
+                  <td {...cell.getCellProps()} key={cell.column.id}>
                     {cell.render("Cell") as React.ReactNode}
                   </td>
                 ))}
-                <td style={{ textAlign: "center" }} key={row.original.id}>
-                  <button className="btn btn-outline-danger py-0 px-1">
+                <td style={{ textAlign: "center" }} key={row.id}>
+                  <button
+                    className="btn btn-outline-danger py-0 px-1"
+                    onClick={(event) => handleDelete(row.original.id, event)}
+                  >
                     ❌
                   </button>
                 </td>
@@ -155,35 +186,32 @@ const UserBoard: React.FC<UserBoardProps> = ({
                 ></button>
               </div>
               <div className="modal-body mb-3">
-                <strong>Name:</strong> {selectedRow?.userName}
+                <strong>Name:</strong> {selectedRow.userName}
                 <br />
-                {showAdminBoard ? (
+                {showAdminBoard && (
                   <>
-                    <strong>Company Name:</strong> {selectedRow?.companyName}
+                    <strong>Company Name:</strong> {selectedRow.companyName}
                     <br />
                   </>
-                ) : null}
-                <strong>Email:</strong>
-                {selectedRow?.email}
+                )}
+                <strong>Email:</strong> {selectedRow.email}
                 <br />
-                <strong>Status:</strong> {getStatusString(selectedRow?.status)}
+                <strong>Status:</strong> {getStatusString(selectedRow.status)}
                 <br />
                 <strong>Date:</strong>{" "}
-                {format(new Date(selectedRow?.date), "dd-MM-yyyy")}
-                <UserBoardSubTable id={selectedRow?.id} val={showAdminBoard} />
+                {format(new Date(selectedRow.date), "dd-MM-yyyy")}
+                <UserBoardSubTable id={selectedRow.id} val={showAdminBoard} />
               </div>
               <div className="modal-footer d-print-none">
-                {showAdminBoard ? (
+                {showAdminBoard && (
                   <button
                     type="button"
                     className="btn btn-danger"
-                    onClick={() => {
-                      handleStatus(-2, selectedRow);
-                    }}
+                    onClick={() => handleStatus(-2, selectedRow)}
                   >
                     Cancel
                   </button>
-                ) : null}
+                )}
                 <div className="btn-group">
                   <button
                     type="button"
@@ -197,9 +225,7 @@ const UserBoard: React.FC<UserBoardProps> = ({
                     <li>
                       <a
                         className="dropdown-item"
-                        onClick={() => {
-                          handleStatus(0, selectedRow);
-                        }}
+                        onClick={() => handleStatus(0, selectedRow)}
                       >
                         Mark Done
                       </a>
@@ -207,9 +233,7 @@ const UserBoard: React.FC<UserBoardProps> = ({
                     <li>
                       <a
                         className="dropdown-item"
-                        onClick={() => {
-                          handleStatus(2, selectedRow);
-                        }}
+                        onClick={() => handleStatus(2, selectedRow)}
                       >
                         Accept
                       </a>
@@ -217,9 +241,7 @@ const UserBoard: React.FC<UserBoardProps> = ({
                     <li>
                       <a
                         className="dropdown-item"
-                        onClick={() => {
-                          handleStatus(-1, selectedRow);
-                        }}
+                        onClick={() => handleStatus(-1, selectedRow)}
                       >
                         Reject
                       </a>
@@ -232,9 +254,7 @@ const UserBoard: React.FC<UserBoardProps> = ({
                 <button
                   type="button"
                   className="btn btn-secondary"
-                  onClick={() => {
-                    setSelectedRow(null);
-                  }}
+                  onClick={() => setSelectedRow(null)}
                 >
                   Close
                 </button>

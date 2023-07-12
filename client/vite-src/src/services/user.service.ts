@@ -6,7 +6,8 @@ interface ChangeStatus {
 }
 
 
-const API_URL = 'http://localhost:8080/api/test/';
+// const API_URL = 'https://servicing-module-production.up.railway.app/api/test/';
+  const API_URL = "http://localhost:8080/api/test/";
 
 class UserService {
   getPublicContent() {
@@ -41,6 +42,9 @@ class UserService {
   }
   insertFormData(formValues: { [key: string]: string }) {
     return axios.post(API_URL + 'insertFormData', formValues, { headers: authHeader() });
+  }
+  deleteData(id:number){
+    return axios.get(API_URL + 'deleteData', { params: { id }, headers: authHeader() });
   }
   uploadImage(imageData: FormData){
     return axios.post(API_URL + 'uploadImage', imageData, { headers: authHeader() });
