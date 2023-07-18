@@ -12,7 +12,6 @@ exports.signup = (req, res) => {
   // Save User to Database
   User.create({
     username: req.body.username,
-    companyName: req.body.companyName,
     email: req.body.email,
     phone:req.body.phone,
     password: bcrypt.hashSync(req.body.password, 8),
@@ -20,14 +19,12 @@ exports.signup = (req, res) => {
   })
   .then(user => {
     if (req.body.roles === true) {
-      Role.findOne({
-        where: {
-          name: "admin"
-        }
-      }).then(role => {
-        user.setRoles([role.id]).then(() => {
-          res.send({ message: "User registered successfully!" });
-        });
+      user.setRoles([2]).then(() => {
+        res.send({ message: "Requester registered successfully!" });
+      });
+    } else if(req.body.roles === false){
+      user.setRoles([3]).then(() => {
+        res.send({ message: "Driver registered successfully!" });
       });
     } else {
       // user role = 1

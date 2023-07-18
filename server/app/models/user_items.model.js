@@ -11,11 +11,12 @@ module.exports = (sequelize, Sequelize) => {
         itemQuantity: {
           type: Sequelize.INTEGER,
         },
+        receivedQuantity: {
+          type: Sequelize.INTEGER,
+        }
       },
       {
         timestamps: false,
       });
-  UserItems.removeAttribute('id'); 
     return UserItems;
   };
-  

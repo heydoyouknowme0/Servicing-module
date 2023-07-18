@@ -17,9 +17,6 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.INTEGER,
         defaultValue: 1,
       },
-      date: {
-        type: Sequelize.DATE,
-      },
       userName: {
         type: Sequelize.STRING,
       },
@@ -36,7 +33,7 @@ module.exports = (sequelize, Sequelize) => {
         type: Sequelize.DATE,
       },
       image: {
-        type: Sequelize.STRING,
+        type: Sequelize.JSON,
       }
     }
   );
