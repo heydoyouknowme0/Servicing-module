@@ -4,6 +4,7 @@
   "defaultMode": "window",
   "documentRoot": "/vite-src/dist/",
   "url": "/",
+  "port":3000,
   "enableServer": true,
   "enableNativeAPI": false,
   "nativeAllowList": ["app.*", "filesystem.readDirectory"],
@@ -14,7 +15,7 @@
       "height": 500,
       "minWidth": 400,
       "minHeight": 200,
-      "icon": "/vite-src/public/vite.svg"
+      "icon": "/vite-src/public/icon.png"
     }
   },
   "cli": {

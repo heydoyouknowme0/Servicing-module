@@ -1,5 +1,6 @@
 import axios from "axios";
 
+// const API_URL = "https://servicing-module-production.up.railway.app/api/auth/";
 const API_URL = "http://localhost:8080/api/auth/";
 
 class AuthService {
@@ -22,10 +23,9 @@ class AuthService {
     localStorage.removeItem("user");
   }
 
-  register(username: string,companyName: string, email: string,phone: string, password: string,phoneCode?: string,roles?:boolean, ) {
+  register(username: string, email: string,phone: string, password: string,phoneCode?: string,roles?:boolean, ) {
     return axios.post(API_URL + "signup", {
       username,
-      companyName,
       email,
       phone,
       password,
