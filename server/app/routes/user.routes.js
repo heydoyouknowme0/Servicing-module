@@ -14,9 +14,14 @@ module.exports = function (app) {
   app.get("/api/test/all", controller.allAccess);
   
   app.get(
+    "/api/test/userServicer",
+    [authJwt.verifyToken],
+    controller.userBoardServicer
+  );
+  app.get(
     "/api/test/user",
     [authJwt.verifyToken],
-    controller.userBoard
+    controller.userBoardDriver
   );
   app.get(
     "/api/test/userAdmin",
@@ -33,17 +38,17 @@ module.exports = function (app) {
     [authJwt.verifyToken],
     controller.itemBoard
   );
-  
-  app.get(
-    "/api/test/itemsAdmin",
-    [authJwt.verifyToken, authJwt.isAdmin],
-    controller.itemBoardAdmin
-  );
 
   app.post(
     "/api/test/insertFormData",
     [authJwt.verifyToken, authJwt.isAdmin],
     controller.insertFormData
+  );
+
+  app.post(
+    "/api/test/updateReceived",
+    [authJwt.verifyToken],
+    controller.updateReceived
   );
 
   app.get(
