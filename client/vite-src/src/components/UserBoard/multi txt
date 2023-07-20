@@ -1,0 +1,63 @@
+import { useState } from "react";
+
+
+const [selectedImages,setSelectedImages]=useState<File[]>();
+const compressImage = (file: File): Promise<File> => {
+    return new Promise<File>((resolve, reject) => {
+        new Compressor(file, {
+            quality: 0.8,
+            success: (result) => {
+                resolve(new File([result], file.name, { type: result.type }));
+            },
+            error: (error: Error) => reject(error),
+        });
+    });
+};
+const handleImageSelect = async (event: ChangeEvent<HTMLInputElement>) => {
+    if (event.target.files) {
+      const files = Array.from(event.target.files);
+      const fileSizeLimit = 5 * 1024 * 1024;
+      const allowedTypes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
+  
+      const validFiles = files.filter(
+        (file) => file.size <= fileSizeLimit && allowedTypes.includes(file.type)
+      );
+  
+      if (validFiles.length === files.length) {
+        setErrorMessage('');
+  
+        try {
+          const compressedFiles = await Promise.all(
+            validFiles.map((file) => compressImage(file))
+          );
+  
+          // Replace the original selected files with the compressed files
+          setSelectedImages(compressedFiles);
+        } catch (error) {
+          console.error('Error compressing images:', error);
+          event.target.value = ''; // Clear the input value
+          setErrorMessage('Error compressing');
+        }
+      } else {
+        // Some files are not valid
+        event.target.value = ''; // Clear the input value
+        setErrorMessage('Invalid file(s) selected. Please choose valid image files.'); // Set error message
+      }
+    }
+  };
+const handleSubmit = useCallback(async () => {
+ // Create FormData from the current form element
+ if(selectedImages){
+  try {
+    const formData = new FormData();
+    formData.append("id", id.toString());
+    for (let i = 0; i < selectedImages.length; i++) {
+        formData.append('images[]', selectedImages[i])
+     }
+    await userService.uploadImages(formData);
+  } catch (error) {
+    console.error(error);
+  }
+}},
+[id]
+);

@@ -11,12 +11,11 @@ interface State {
 
 interface FormValues {
   username: string;
-  companyName: string;
   email: string;
   phoneCode?: string;
   phone: string;
   password: string;
-  enableRequest: boolean;
+  enableRequest?: string;
 }
 
 const Register = () => {
@@ -29,10 +28,6 @@ const Register = () => {
     username: Yup.string()
       .min(3, "The username must be at least 3 characters.")
       .max(20, "The username must be at most 20 characters.")
-      .required("This field is required!"),
-    companyName: Yup.string()
-      .min(3, "The Company name must be at least 3 characters.")
-      .max(20, "The Company name must be at most 20 characters.")
       .required("This field is required!"),
     email: Yup.string()
       .email("This is not a valid email.")
@@ -48,22 +43,18 @@ const Register = () => {
   });
 
   const handleRegister = async (formValues: FormValues) => {
-    const {
-      username,
-      companyName,
-      email,
-      phoneCode,
-      phone,
-      password,
-      enableRequest,
-    } = formValues;
+    const { username, email, phoneCode, phone, password, enableRequest } =
+      formValues;
 
     try {
-      const roles = enableRequest ? true : false;
-
+      const roles =
+        enableRequest === "true"
+          ? true
+          : enableRequest === "false"
+          ? false
+          : undefined;
       const response = await AuthService.register(
         username,
-        companyName,
         email,
         phone,
         password,
@@ -93,11 +84,10 @@ const Register = () => {
 
   const initialValues: FormValues = {
     username: "",
-    companyName: "",
     email: "",
     phone: "",
     password: "",
-    enableRequest: false,
+    enableRequest: "",
   };
 
   return (
@@ -115,7 +105,7 @@ const Register = () => {
           onSubmit={handleRegister}
         >
           <Form>
-            {!successful && (
+            {!successful ? (
               <>
                 <div className="form-floating">
                   <Field
@@ -128,26 +118,6 @@ const Register = () => {
                   <label htmlFor="username">Username</label>
                   <ErrorMessage
                     name="username"
-                    component="div"
-                    className="alert alert-danger"
-                  />
-                </div>
-                <div className="form-floating">
-                  <Field
-                    type="text"
-                    className="form-control form-control-lg"
-                    id="company-name"
-                    name="companyName"
-                    placeholder="Company name"
-                    list="CompanyList"
-                    required
-                  />
-                  <datalist id="CompanyList">
-                    <option value="company 1"></option>
-                  </datalist>
-                  <label htmlFor="company-name">Company name</label>
-                  <ErrorMessage
-                    name="companyName"
                     component="div"
                     className="alert alert-danger"
                   />
@@ -176,6 +146,7 @@ const Register = () => {
                     placeholder="+960"
                     maxLength={4}
                     id="phoneCode"
+                    autoComplete="phoneCode"
                     name="phoneCode"
                     style={{ maxWidth: "56px" }}
                   />
@@ -223,16 +194,18 @@ const Register = () => {
                 </div>
 
                 <div className="form-group mb-3">
-                  <div className="form-check">
+                  <div className="form-floating">
                     <Field
-                      type="checkbox"
+                      as="select"
                       id="enableRequest"
                       name="enableRequest"
-                      className="form-check-input"
-                    />
-                    <label className="form-check-label" htmlFor="enableRequest">
-                      Enable Request
-                    </label>
+                      className="form-select"
+                    >
+                      <option value="">Servicer</option>
+                      <option value="true">Requester</option>
+                      <option value="false">Driver</option>
+                    </Field>
+                    <label htmlFor="enableRequest">Select Role:</label>
                   </div>
                 </div>
 
@@ -245,9 +218,7 @@ const Register = () => {
                   </button>
                 </div>
               </>
-            )}
-
-            {message && (
+            ) : (
               <div className="form-group mb-3">
                 <div
                   className={

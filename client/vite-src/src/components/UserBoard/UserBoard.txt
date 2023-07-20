@@ -5,44 +5,33 @@ import { DataType } from "../../types/user.type";
 import UserBoardSubTable from "./UserBoardSubTable";
 import "./UserPrint.css";
 import userService from "../../services/user.service";
-import { Table, Button, Modal } from "react-bootstrap";
+import { Table, Button, Modal, Dropdown } from "react-bootstrap";
 
-interface UserBoardWrapperProps {
+interface UserBoardProps {
+  data: DataType[];
   showAdminBoard?: boolean;
+  onStatusChange: (newStatus: number, row: DataType) => void;
 }
 
-const UserBoardWrapper: React.FC<UserBoardWrapperProps> = ({
+const UserBoard: React.FC<UserBoardProps> = ({
+  data: initialData,
   showAdminBoard,
+  onStatusChange,
 }) => {
-  const [userData, setUserData] = useState<DataType[]>([]);
+  const [data, setData] = useState<DataType[]>(initialData);
   const [selectedRow, setSelectedRow] = useState<DataType | null>(null);
 
-  const handleStatusChange = useCallback(
-    (newStatus: number, row: DataType) => {
-      userService.changeStatus(newStatus, row.id).then(() => {
-        const updatedData = userData.map((dataRow) => {
-          if (dataRow.id === row.id) {
-            return { ...dataRow, status: newStatus };
-          }
-          return dataRow;
-        });
-
-        setUserData(updatedData);
-      });
-    },
-    [userData]
-  );
-
   useEffect(() => {
-    userService
-      .getUserBoard(showAdminBoard)
-      .then((response) => {
-        setUserData(response.data);
-      })
-      .catch((error) => {
-        console.error("Error fetching user data:", error);
-      });
-  }, [showAdminBoard]);
+    setData(initialData);
+  }, [initialData]);
+
+  const handleStatus = useCallback(
+    (newStatus: number, selRow: DataType) => {
+      onStatusChange(newStatus, selRow);
+      setSelectedRow({ ...selRow, status: newStatus });
+    },
+    [onStatusChange]
+  );
 
   const handleRowClick = useCallback((rowData: DataType) => {
     setSelectedRow(rowData);
@@ -54,7 +43,7 @@ const UserBoardWrapper: React.FC<UserBoardWrapperProps> = ({
       userService
         .deleteData(id)
         .then(() => {
-          setUserData((prevData) => prevData.filter((row) => row.id !== id));
+          setData((prevData) => prevData.filter((row) => row.id !== id));
         })
         .catch((error) => {
           console.error("Error deleting row:", error);
@@ -63,7 +52,7 @@ const UserBoardWrapper: React.FC<UserBoardWrapperProps> = ({
     []
   );
 
-  const getStatusString = useCallback((status: number | string) => {
+  const getStatusString = useCallback((status: number) => {
     switch (status) {
       case 0:
         return "Complete";
@@ -79,28 +68,24 @@ const UserBoardWrapper: React.FC<UserBoardWrapperProps> = ({
         return "Unknown";
     }
   }, []);
-
   const formattedData = useMemo(() => {
-    return userData.map((row) => {
+    return data.map((row) => {
       return {
         ...row,
         createdAt: format(new Date(row.createdAt), "dd-MM-yyyy"),
-        status: getStatusString(row.status),
       };
     });
-  }, [userData]);
+  }, [data]);
 
   const columns = useMemo(
     () => [
       {
         Header: "ID",
         accessor: (_: any, rowIndex: number) => rowIndex + 1,
-        className: "d-none d-md-table-cell",
       },
       {
         Header: "Name",
         accessor: "userName" as const,
-        className: "d-none d-sm-table-cell",
       },
       {
         Header: "Company Name",
@@ -109,33 +94,30 @@ const UserBoardWrapper: React.FC<UserBoardWrapperProps> = ({
       {
         Header: "Requester",
         accessor: "requester" as const,
-        className: "d-none d-md-table-cell",
       },
       {
         Header: "Driver",
         accessor: "driver" as const,
-        className: "d-none d-md-table-cell",
       },
       {
         Header: "Servicer",
         accessor: "servicer" as const,
-        className: "d-none d-md-table-cell",
       },
       {
         Header: "Email",
         accessor: "email" as const,
-        className: "d-none d-sm-table-cell",
       },
       {
         Header: "Status",
         accessor: "status" as const,
+        Cell: ({ value }: CellProps<DataType>) => getStatusString(value),
       },
       {
         Header: "Date",
         accessor: "createdAt" as const,
       },
     ],
-    []
+    [getStatusString]
   );
 
   const { getTableProps, getTableBodyProps, headerGroups, rows, prepareRow } =
@@ -147,22 +129,22 @@ const UserBoardWrapper: React.FC<UserBoardWrapperProps> = ({
           hiddenColumns: showAdminBoard
             ? ["requester"]
             : showAdminBoard === false
-            ? ["servicer"]
-            : ["driver"],
+            ? ["driver"]
+            : ["servicer"],
         },
       },
       useSortBy
     );
 
   return (
-    <div className="container-md table-responsive d-print-none">
+    <div className="container table-responsive">
       <Table hover className="d-print-none" {...getTableProps()}>
         <thead>
-          {headerGroups.map((headerGroup, i) => (
-            <tr {...headerGroup.getHeaderGroupProps()} key={"header"}>
+          {headerGroups.map((headerGroup) => (
+            <tr {...headerGroup.getHeaderGroupProps()} key={headerGroup.id}>
               {headerGroup.headers.map((column) => (
                 <th
-                  className={`col ${column.className}`}
+                  className="col"
                   {...column.getHeaderProps(column.getSortByToggleProps())}
                   key={column.id}
                 >
@@ -172,7 +154,7 @@ const UserBoardWrapper: React.FC<UserBoardWrapperProps> = ({
                   </span>
                 </th>
               ))}
-              <th style={{ textAlign: "center" }} key={`del`}>
+              <th style={{ textAlign: "center" }} key={headerGroup.id}>
                 #
               </th>
             </tr>
@@ -191,15 +173,11 @@ const UserBoardWrapper: React.FC<UserBoardWrapperProps> = ({
                 key={row.id}
               >
                 {row.cells.map((cell) => (
-                  <td
-                    {...cell.getCellProps()}
-                    key={cell.column.id}
-                    className={cell.column.className}
-                  >
+                  <td {...cell.getCellProps()} key={cell.column.id}>
                     {cell.render("Cell") as React.ReactNode}
                   </td>
                 ))}
-                <td style={{ textAlign: "center" }} key={`d-${row.id}`}>
+                <td style={{ textAlign: "center" }} key={row.id}>
                   <Button
                     variant="outline-warning"
                     size="sm"
@@ -214,13 +192,14 @@ const UserBoardWrapper: React.FC<UserBoardWrapperProps> = ({
           })}
         </tbody>
       </Table>
+
       <Modal
         show={!!selectedRow}
         onHide={() => {
           setSelectedRow(null);
         }}
+        backdrop="static"
         keyboard={false}
-        scrollable={true}
         centered
       >
         <Modal.Header closeButton>
@@ -228,15 +207,64 @@ const UserBoardWrapper: React.FC<UserBoardWrapperProps> = ({
             Request Details
           </Modal.Title>
         </Modal.Header>
-        <UserBoardSubTable
-          selectedRow={selectedRow}
-          handleStatusChange={handleStatusChange}
-          getStatusString={getStatusString}
-          showAdminBoard={showAdminBoard}
-        />
+        <Modal.Body>
+          <strong>Name:</strong> {selectedRow?.userName}
+          <br />
+          {showAdminBoard && (
+            <>
+              <strong>Company Name:</strong> {selectedRow?.companyName}
+              <br />
+            </>
+          )}
+          <strong>Email:</strong> {selectedRow?.email}
+          <br />
+          {selectedRow ? (
+            <>
+              <strong>Status:</strong>{" "}
+              {getStatusString(selectedRow?.status) ?? null}
+              <br />
+              <strong>Date:</strong> {selectedRow.createdAt}
+              <UserBoardSubTable id={selectedRow.id} val={showAdminBoard} />
+            </>
+          ) : null}
+        </Modal.Body>
+        {selectedRow ? (
+          <Modal.Footer className="d-print-none">
+            {showAdminBoard && (
+              <Button
+                variant="danger"
+                onClick={() => handleStatus(-2, selectedRow)}
+              >
+                Cancel
+              </Button>
+            )}
+            <div className="btn-group">
+              <Dropdown>
+                <Dropdown.Toggle variant="info" id="dropdown-basic">
+                  Change Status
+                </Dropdown.Toggle>
+
+                <Dropdown.Menu>
+                  <Dropdown.Item onClick={() => handleStatus(0, selectedRow)}>
+                    Mark Done
+                  </Dropdown.Item>
+                  <Dropdown.Item onClick={() => handleStatus(2, selectedRow)}>
+                    Accept
+                  </Dropdown.Item>
+                  <Dropdown.Item onClick={() => handleStatus(-1, selectedRow)}>
+                    Reject
+                  </Dropdown.Item>
+                </Dropdown.Menu>
+              </Dropdown>
+            </div>
+            <Button variant="warning" onClick={window.print}>
+              Print
+            </Button>
+          </Modal.Footer>
+        ) : null}
       </Modal>
     </div>
   );
 };
 
-export default UserBoardWrapper;
+export default UserBoard;

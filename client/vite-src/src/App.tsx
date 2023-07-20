@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { Routes, Route, Link, useNavigate } from "react-router-dom";
-import "bootstrap/dist/css/bootstrap.min.css";
-import "bootstrap/dist/js/bootstrap.bundle.min.js";
+import { Routes, Route, Link } from "react-router-dom";
+import { Navbar, Nav, NavDropdown, Button, Container } from "react-bootstrap";
+import "bootstrap/dist/css/bootstrap.css";
 import "./App.css";
 
 import AuthService from "./services/auth.service";
@@ -16,13 +16,12 @@ import AdminBoard from "./components/AdminBoard";
 import EventBus from "./common/EventBus";
 
 interface State {
-  showAdminBoard: boolean;
+  showAdminBoard?: boolean;
   currentUser: IUser | undefined;
 }
 
 const App: React.FC = () => {
   const [state, setState] = useState<State>({
-    showAdminBoard: false,
     currentUser: undefined,
   });
   const [isDarkMode, setIsDarkMode] = useState(
@@ -49,7 +48,11 @@ const App: React.FC = () => {
     if (user) {
       setState({
         currentUser: user,
-        showAdminBoard: user.roles.includes("ROLE_ADMIN"),
+        showAdminBoard: user.roles.includes("ROLE_ADMIN")
+          ? true
+          : user.roles.includes("ROLE_SERVICER")
+          ? false
+          : undefined,
       });
     }
     EventBus.on("logout", logOut);
@@ -62,7 +65,7 @@ const App: React.FC = () => {
     AuthService.logout();
     setState({
       ...state,
-      showAdminBoard: false,
+      showAdminBoard: undefined,
       currentUser: undefined,
     });
   };
@@ -71,8 +74,8 @@ const App: React.FC = () => {
 
   const navigationItems = [
     { to: "/home", label: "Home" },
-    { to: "/admin", label: "Admin Board", condition: showAdminBoard },
-    { to: "/user", label: "User", condition: currentUser },
+    { to: "/admin", label: "Request", condition: showAdminBoard },
+    { to: "/user", label: "Dashboard", condition: currentUser },
   ];
 
   const handleLoginSuccess = () => {
@@ -80,106 +83,91 @@ const App: React.FC = () => {
     if (user) {
       setState({
         currentUser: user,
-        showAdminBoard: user.roles.includes("ROLE_ADMIN"),
+        showAdminBoard: user.roles.includes("ROLE_ADMIN")
+          ? true
+          : user.roles.includes("ROLE_SERVICER")
+          ? false
+          : undefined,
       });
     }
   };
 
   return (
-    <div className="pt-sm-5 vh-100 d-flex flex-column">
-      {/* <button
-        className="btn btn-bd-primary py-2 dropdown-toggle d-flex align-items-center"
-        id="bd-theme"
-        type="button"
-        aria-expanded="false"
-        data-bs-toggle="dropdown"
-        aria-label="Toggle theme (auto)"
+    <div className="pt-sm-3 pt-md-5 vh-100 d-flex flex-column d-print-none">
+      <Navbar
+        sticky="top"
+        expand="sm"
+        bg="body-tertiary"
+        variant="light"
+        className="mx-md-5 mx-sm-2 px-xl-4 mb-sm-5 py-xl-3 navbar-expand-sm rounded d-print-none"
       >
-        <svg className="bi my-1 theme-icon-active" width="1em" height="1em">
-          <use href="#circle-half"></use>
-        </svg>
-        <span className="visually-hidden" id="bd-theme-text">
-          Toggle theme
-        </span>
-      </button> */}
-      <nav
-        className="navbar sticky-top  mx-sm-5 px-xl-4 mb-sm-5 py-xl-3 navbar-expand-sm bg-body-tertiary rounded d-print-none"
-        aria-label="Thirteenth navbar example"
-      >
-        <Link to={"/"} className="navbar-brand col-sm-auto ms-2 pe-0 me-0">
-          SerMod
-        </Link>
-        <button
-          className="navbar-toggler"
-          type="button"
-          data-bs-toggle="collapse"
-          data-bs-target="#navbarsExample11"
-          aria-controls="navbarsExample11"
-          aria-expanded="false"
-          aria-label="Toggle navigation"
-          style={{ marginRight: "78px" }}
+        <Navbar.Brand
+          as={Link}
+          to="/"
+          className="navbar-brand col-sm-auto ms-2 pe-0 me-0"
         >
-          <span className="navbar-toggler-icon"></span>
-        </button>
-
-        <div className="container-fluid ">
-          <div
-            className="collapse navbar-collapse d-sm-flex"
-            id="navbarsExample11"
-          >
-            <ul className="navbar-nav col-sm-auto ">
+          ServicingModule
+        </Navbar.Brand>
+        <Navbar.Toggle
+          aria-controls="navbarNav"
+          style={{ marginRight: "78px" }}
+        />
+        <Container fluid>
+          <Navbar.Collapse id="navbarNav">
+            <Nav className="navbar-nav col-sm-5 col-md-auto">
               {navigationItems.map(
                 (item) =>
                   item.condition && (
-                    <li className="nav-item" key={item.to}>
-                      <Link to={item.to} className="nav-link">
+                    <Nav.Item key={item.to}>
+                      <Nav.Link as={Link} to={item.to}>
                         {item.label}
-                      </Link>
-                    </li>
+                      </Nav.Link>
+                    </Nav.Item>
                   )
               )}
               {currentUser ? (
                 <>
-                  <li className="nav-item">
-                    <Link to={"/profile"} className="nav-link">
+                  <Nav.Item>
+                    <Nav.Link as={Link} to="/profile">
                       {currentUser.username}
-                    </Link>
-                  </li>
-                  <li className="nav-item">
-                    <Link to="/home" className="nav-link" onClick={logOut}>
+                    </Nav.Link>
+                  </Nav.Item>
+                  <Nav.Item>
+                    <Nav.Link as={Link} to="/home" onClick={logOut}>
                       Logout
-                    </Link>
-                  </li>
+                    </Nav.Link>
+                  </Nav.Item>
                 </>
               ) : (
                 <>
-                  <li className="nav-item">
-                    <Link to={"/login"} className="nav-link">
+                  <Nav.Item>
+                    <Nav.Link as={Link} to="/login">
                       Login
-                    </Link>
-                  </li>
+                    </Nav.Link>
+                  </Nav.Item>
 
-                  <li className="nav-item">
-                    <Link to={"/register"} className="nav-link">
+                  <Nav.Item>
+                    <Nav.Link as={Link} to="/register">
                       Sign Up
-                    </Link>
-                  </li>
+                    </Nav.Link>
+                  </Nav.Item>
                 </>
               )}
-            </ul>
-          </div>
-        </div>
-        <button
+            </Nav>
+          </Navbar.Collapse>
+        </Container>
+
+        <Button
           className="btn position-absolute top-0 end-0 mt-2 me-xl-4 mt-xl-3 me-2"
           style={{ backgroundColor: "#6528e0", color: "white" }}
           onClick={handleModeChange}
         >
           {isDarkMode ? "Dark" : "Light"}
-        </button>
-      </nav>
+        </Button>
+      </Navbar>
+
       <Routes>
         <Route path="*" element={<Home />} />
-        <Route path="/" element={<Home />} />
         <Route path="/home" element={<Home />} />
         <Route
           path="/login"

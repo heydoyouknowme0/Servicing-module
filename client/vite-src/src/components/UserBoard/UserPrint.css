@@ -1,14 +1,49 @@
 @media print {
-    .modal{
-        height: fit-content !important;
-        overflow: auto !important;
-        position: relative !important;
+    .container{overflow: auto;}
+    .modal-dialog-centered{
+        display: block;
     }
-    .container{overflow: visible;}
-
+    .modal-dialog-scrollable{
+        height: fit-content !important;
+        overflow: auto;
+    }
+    .modal{
+        position: relative;
+    }
     .t1{
         break-after: page;
     }
+    body{
+        overflow: auto;
+    }
+    .row {
+      display: flex;
+      flex-wrap: wrap;
+    }
+
+    .col-sm-6 {
+      width: 50%;
+    }
+    .modal-backdrop,.btn-close {
+      display: none;
+    }
 
 }
-
+.fade-message-fade-enter {
+    opacity: 0.01;
+  }
+  
+  .fade-message-fade-enter.fade-message-fade-enter-active {
+    opacity: 1;
+    transition: opacity 300ms ease-in;
+  }
+  
+  .fade-message-fade-exit {
+    opacity: 1;
+  }
+  
+  .fade-message-fade-exit.fade-message-fade-exit-active {
+    opacity: 0.01;
+    transition: opacity 300ms ease-out;
+  }
+  
