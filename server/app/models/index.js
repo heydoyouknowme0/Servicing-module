@@ -9,7 +9,8 @@ const sequelize = new Sequelize(
     host: config.HOST,
     dialect: config.dialect,
     operatorsAliases: false,
-    port: config.port,
+    // port: config.port,
+
 
     pool: {
       max: config.pool.max,
@@ -43,8 +44,11 @@ db.User.belongsToMany(db.Role, {
   otherKey: "roleId"
 });
 
-db.UserData.belongsTo(db.User, { foreignKey: 'nameId', as: 'nameUser' });
-db.User.hasMany(db.UserData, { foreignKey: 'nameId' });
+db.UserData.belongsTo(db.User, { foreignKey: 'servicerId', as: 'nameUser' });
+db.User.hasMany(db.UserData, { foreignKey: 'servicerId' });
+
+db.UserData.belongsTo(db.User, { foreignKey: 'driverId', as: 'driverUser' });
+db.User.hasMany(db.UserData, { foreignKey: 'driverId' });
 
 db.UserData.belongsTo(db.User, { foreignKey: 'userId' });
 db.User.hasMany(db.UserData, { foreignKey: 'userId' });
@@ -56,6 +60,6 @@ db.UserItems.belongsTo(db.UserData);
 db.Items.hasMany(db.SubItems);
 db.SubItems.belongsTo(db.Items);
 
-db.ROLES = ["user", "admin"];
+db.ROLES = ["user", "requester","driver"];
 
 module.exports = db;
