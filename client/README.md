@@ -1,6 +1,6 @@
-# Neutralinojs Vite React Typescript Template
+# Neutralinojs Vite React Typescript project
 
-A simple template for building Neutralinojs apps with the power of Vite+React+TS ⚡
+
 
 # Install
 
